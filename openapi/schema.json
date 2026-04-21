@@ -1,0 +1,102 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Research Gap Detection API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/ingest/search/": {
+      "post": {
+        "operationId": "ingestSearch",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SearchRequest": {
+        "type": "object",
+        "required": [
+          "query",
+          "sources",
+          "limit",
+          "dedupe",
+          "persist",
+          "require_abstract"
+        ],
+        "properties": {
+          "query": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "sources": {
+            "type": "array",
+            "items": { "type": "string", "enum": ["openalex", "arxiv"] }
+          },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 200 },
+          "dedupe": { "type": "boolean" },
+          "persist": { "type": "boolean" },
+          "year_min": { "type": "integer" },
+          "year_max": { "type": "integer" },
+          "require_abstract": { "type": "boolean" }
+        }
+      },
+      "DocumentItem": {
+        "type": "object",
+        "required": ["source", "external_id", "title", "authors", "keywords"],
+        "properties": {
+          "source": { "type": "string" },
+          "external_id": { "type": "string" },
+          "title": { "type": "string" },
+          "abstract": { "type": ["string", "null"] },
+          "authors": { "type": "array", "items": { "type": "string" } },
+          "year": { "type": ["integer", "null"] },
+          "doi": { "type": ["string", "null"] },
+          "keywords": { "type": "array", "items": { "type": "string" } },
+          "url": { "type": ["string", "null"] }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "required": [
+          "documents",
+          "per_source_counts",
+          "filtered_out",
+          "duplicates_collapsed",
+          "persisted"
+        ],
+        "properties": {
+          "documents": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/DocumentItem" }
+          },
+          "per_source_counts": {
+            "type": "object",
+            "additionalProperties": { "type": "integer" }
+          },
+          "filtered_out": { "type": "integer" },
+          "duplicates_collapsed": { "type": "integer" },
+          "persisted": { "type": "integer" }
+        }
+      }
+    }
+  }
+}
