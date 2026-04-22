@@ -2,32 +2,382 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Research Gap Detection API",
-    "version": "0.1.0"
+    "version": "0.1.0",
+    "description": "API documentation for the Research Gap Detection project."
   },
   "paths": {
     "/api/ingest/search/": {
       "post": {
-        "operationId": "ingestSearch",
+        "operationId": "ingestion_search",
+        "description": "Run a query against the configured corpus sources (OpenAlex, arXiv), normalize, filter, deduplicate and optionally persist.",
+        "tags": ["Ingestion"],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/SearchRequest"
               }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
             }
-          }
+          },
+          "required": true
         },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
         "responses": {
           "200": {
-            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResponse"
                 }
               }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/mapping/cooccurrences/": {
+      "get": {
+        "operationId": "mapping_cooccurrences",
+        "description": "List co-occurrence edges between entities for a mapping job. If `job_id` is omitted, returns edges of the latest successful job.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_weight",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": ["Mapping"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoOccurrencesResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/mapping/entities/": {
+      "get": {
+        "operationId": "mapping_entities",
+        "description": "List extracted entities (methods/datasets/tasks/metrics) ranked by number of documents that mention them.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": ["dataset", "method", "metric", "task"]
+            }
+          }
+        ],
+        "tags": ["Mapping"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitiesResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/mapping/jobs/": {
+      "get": {
+        "operationId": "mapping_jobs_list",
+        "description": "List mapping jobs (most recent first).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": ["failed", "pending", "running", "success"]
+            }
+          }
+        ],
+        "tags": ["Mapping"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingJobList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/mapping/jobs/{job_id}/": {
+      "get": {
+        "operationId": "mapping_job_detail",
+        "description": "Retrieve a single mapping job with full stats and error.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": ["Mapping"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingJob"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/mapping/jobs/{job_id}/summary/": {
+      "get": {
+        "operationId": "mapping_job_summary",
+        "description": "Consolidated output of a mapping job: top topics, top entities per type, and top co-occurrence edges — the payload consumed by the gap-detection agent.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cooc_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "entities_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "topics_limit",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": ["Mapping"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MappingSummary"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/mapping/run/": {
+      "post": {
+        "operationId": "mapping_run",
+        "description": "Create a new MappingJob and enqueue the mapping pipeline task (embed → cluster → extract → co-occurrences). Returns 202 immediately with the job_id; clients should poll /api/mapping/jobs/{id}/ for progress.",
+        "tags": ["Mapping"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunMappingRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/RunMappingRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/RunMappingRequest"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunMappingResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/mapping/topics/": {
+      "get": {
+        "operationId": "mapping_topics",
+        "description": "List topics (clusters) produced by a mapping job. If `job_id` is omitted, returns topics of the latest successful job.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": ["Mapping"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicsResponse"
+                }
+              }
+            },
+            "description": ""
           }
         }
       }
@@ -35,67 +385,471 @@
   },
   "components": {
     "schemas": {
-      "SearchRequest": {
+      "CoOccurrenceEdge": {
         "type": "object",
-        "required": [
-          "query",
-          "sources",
-          "limit",
-          "dedupe",
-          "persist",
-          "require_abstract"
-        ],
         "properties": {
-          "query": { "type": "string", "minLength": 1, "maxLength": 500 },
-          "sources": {
-            "type": "array",
-            "items": { "type": "string", "enum": ["openalex", "arxiv"] }
+          "entity_a": {
+            "$ref": "#/components/schemas/CoOccurrenceEndpoint"
           },
-          "limit": { "type": "integer", "minimum": 1, "maximum": 200 },
-          "dedupe": { "type": "boolean" },
-          "persist": { "type": "boolean" },
-          "year_min": { "type": "integer" },
-          "year_max": { "type": "integer" },
-          "require_abstract": { "type": "boolean" }
+          "entity_b": {
+            "$ref": "#/components/schemas/CoOccurrenceEndpoint"
+          },
+          "weight": {
+            "type": "integer"
+          }
+        },
+        "required": ["entity_a", "entity_b", "weight"]
+      },
+      "CoOccurrenceEndpoint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name", "type"]
+      },
+      "CoOccurrencesResponse": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoOccurrenceEdge"
+            }
+          }
+        },
+        "required": ["edges", "job_id", "total"]
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "abstract": {
+            "type": "string",
+            "nullable": true
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "year": {
+            "type": "integer",
+            "nullable": true
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["authors", "external_id", "keywords", "source", "title"]
+      },
+      "EntitiesResponse": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "total": {
+            "type": "integer"
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity"
+            }
+          }
+        },
+        "required": ["entities", "total"]
+      },
+      "Entity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "normalized_name": {
+            "type": "string"
+          },
+          "document_count": {
+            "type": "integer"
+          }
+        },
+        "required": ["document_count", "id", "name", "normalized_name", "type"]
+      },
+      "MappingJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "document_filter": {},
+          "stats": {},
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "created_at",
+          "document_filter",
+          "error",
+          "finished_at",
+          "id",
+          "stats",
+          "status"
+        ]
+      },
+      "MappingJobList": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MappingJob"
+            }
+          }
+        },
+        "required": ["jobs", "total"]
+      },
+      "MappingSummary": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "stats": {},
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummaryTopic"
+            }
+          },
+          "top_methods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummaryEntity"
+            }
+          },
+          "top_datasets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummaryEntity"
+            }
+          },
+          "top_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummaryEntity"
+            }
+          },
+          "top_metrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummaryEntity"
+            }
+          },
+          "top_cooccurrences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummaryCoOccurrence"
+            }
+          }
+        },
+        "required": [
+          "job_id",
+          "stats",
+          "status",
+          "top_cooccurrences",
+          "top_datasets",
+          "top_methods",
+          "top_metrics",
+          "top_tasks",
+          "topics"
+        ]
+      },
+      "RunMappingRequest": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "model": {
+            "type": "string"
+          },
+          "min_topic_size": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "top_n_words": {
+            "type": "integer",
+            "minimum": 1
+          }
         }
       },
-      "DocumentItem": {
+      "RunMappingResponse": {
         "type": "object",
-        "required": ["source", "external_id", "title", "authors", "keywords"],
         "properties": {
-          "source": { "type": "string" },
-          "external_id": { "type": "string" },
-          "title": { "type": "string" },
-          "abstract": { "type": ["string", "null"] },
-          "authors": { "type": "array", "items": { "type": "string" } },
-          "year": { "type": ["integer", "null"] },
-          "doi": { "type": ["string", "null"] },
-          "keywords": { "type": "array", "items": { "type": "string" } },
-          "url": { "type": ["string", "null"] }
-        }
+          "job_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["job_id", "status"]
+      },
+      "SearchRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourcesEnum"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 200,
+            "minimum": 1,
+            "default": 50
+          },
+          "dedupe": {
+            "type": "boolean",
+            "default": true
+          },
+          "persist": {
+            "type": "boolean",
+            "default": true
+          },
+          "year_min": {
+            "type": "integer",
+            "nullable": true
+          },
+          "year_max": {
+            "type": "integer",
+            "nullable": true
+          },
+          "require_abstract": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": ["query"]
       },
       "SearchResponse": {
         "type": "object",
-        "required": [
-          "documents",
-          "per_source_counts",
-          "filtered_out",
-          "duplicates_collapsed",
-          "persisted"
-        ],
         "properties": {
           "documents": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/DocumentItem" }
+            "items": {
+              "$ref": "#/components/schemas/Document"
+            }
           },
           "per_source_counts": {
             "type": "object",
-            "additionalProperties": { "type": "integer" }
+            "additionalProperties": {
+              "type": "integer"
+            }
           },
-          "filtered_out": { "type": "integer" },
-          "duplicates_collapsed": { "type": "integer" },
-          "persisted": { "type": "integer" }
-        }
+          "filtered_out": {
+            "type": "integer"
+          },
+          "duplicates_collapsed": {
+            "type": "integer"
+          },
+          "persisted": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "documents",
+          "duplicates_collapsed",
+          "filtered_out",
+          "per_source_counts",
+          "persisted"
+        ]
+      },
+      "SourcesEnum": {
+        "enum": ["openalex", "arxiv"],
+        "type": "string",
+        "description": "* `openalex` - openalex\n* `arxiv` - arxiv"
+      },
+      "SummaryCoOccurrence": {
+        "type": "object",
+        "properties": {
+          "entity_a": {
+            "$ref": "#/components/schemas/CoOccurrenceEndpoint"
+          },
+          "entity_b": {
+            "$ref": "#/components/schemas/CoOccurrenceEndpoint"
+          },
+          "weight": {
+            "type": "integer"
+          }
+        },
+        "required": ["entity_a", "entity_b", "weight"]
+      },
+      "SummaryEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "document_count": {
+            "type": "integer"
+          }
+        },
+        "required": ["document_count", "id", "name", "type"]
+      },
+      "SummaryTopic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "size": {
+            "type": "integer"
+          }
+        },
+        "required": ["id", "keywords", "label", "size"]
+      },
+      "Topic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "job_id": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "size": {
+            "type": "integer"
+          }
+        },
+        "required": ["id", "job_id", "keywords", "label", "size"]
+      },
+      "TopicsResponse": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "integer"
+          },
+          "job_status": {
+            "type": "string"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Topic"
+            }
+          }
+        },
+        "required": ["job_id", "job_status", "topics"]
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionid"
       }
     }
   }

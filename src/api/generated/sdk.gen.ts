@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { IngestSearchData, IngestSearchResponses } from './types.gen';
+import type { IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -18,12 +18,122 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
-export const ingestSearch = <ThrowOnError extends boolean = false>(options: Options<IngestSearchData, ThrowOnError>) => (options.client ?? client).post<IngestSearchResponses, unknown, ThrowOnError>({
+/**
+ * Run a query against the configured corpus sources (OpenAlex, arXiv), normalize, filter, deduplicate and optionally persist.
+ */
+export const ingestionSearch = <ThrowOnError extends boolean = false>(options: Options<IngestionSearchData, ThrowOnError>) => (options.client ?? client).post<IngestionSearchResponses, unknown, ThrowOnError>({
     responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
     url: '/api/ingest/search/',
     ...options,
     headers: {
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * List co-occurrence edges between entities for a mapping job. If `job_id` is omitted, returns edges of the latest successful job.
+ */
+export const mappingCooccurrences = <ThrowOnError extends boolean = false>(options?: Options<MappingCooccurrencesData, ThrowOnError>) => (options?.client ?? client).get<MappingCooccurrencesResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
+    url: '/api/mapping/cooccurrences/',
+    ...options
+});
+
+/**
+ * List extracted entities (methods/datasets/tasks/metrics) ranked by number of documents that mention them.
+ */
+export const mappingEntities = <ThrowOnError extends boolean = false>(options?: Options<MappingEntitiesData, ThrowOnError>) => (options?.client ?? client).get<MappingEntitiesResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
+    url: '/api/mapping/entities/',
+    ...options
+});
+
+/**
+ * List mapping jobs (most recent first).
+ */
+export const mappingJobsList = <ThrowOnError extends boolean = false>(options?: Options<MappingJobsListData, ThrowOnError>) => (options?.client ?? client).get<MappingJobsListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
+    url: '/api/mapping/jobs/',
+    ...options
+});
+
+/**
+ * Retrieve a single mapping job with full stats and error.
+ */
+export const mappingJobDetail = <ThrowOnError extends boolean = false>(options: Options<MappingJobDetailData, ThrowOnError>) => (options.client ?? client).get<MappingJobDetailResponses, MappingJobDetailErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
+    url: '/api/mapping/jobs/{job_id}/',
+    ...options
+});
+
+/**
+ * Consolidated output of a mapping job: top topics, top entities per type, and top co-occurrence edges — the payload consumed by the gap-detection agent.
+ */
+export const mappingJobSummary = <ThrowOnError extends boolean = false>(options: Options<MappingJobSummaryData, ThrowOnError>) => (options.client ?? client).get<MappingJobSummaryResponses, MappingJobSummaryErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
+    url: '/api/mapping/jobs/{job_id}/summary/',
+    ...options
+});
+
+/**
+ * Create a new MappingJob and enqueue the mapping pipeline task (embed → cluster → extract → co-occurrences). Returns 202 immediately with the job_id; clients should poll /api/mapping/jobs/{id}/ for progress.
+ */
+export const mappingRun = <ThrowOnError extends boolean = false>(options?: Options<MappingRunData, ThrowOnError>) => (options?.client ?? client).post<MappingRunResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
+    url: '/api/mapping/run/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+    }
+});
+
+/**
+ * List topics (clusters) produced by a mapping job. If `job_id` is omitted, returns topics of the latest successful job.
+ */
+export const mappingTopics = <ThrowOnError extends boolean = false>(options?: Options<MappingTopicsData, ThrowOnError>) => (options?.client ?? client).get<MappingTopicsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{
+            in: 'cookie',
+            name: 'sessionid',
+            type: 'apiKey'
+        }, { scheme: 'basic', type: 'http' }],
+    url: '/api/mapping/topics/',
+    ...options
 });

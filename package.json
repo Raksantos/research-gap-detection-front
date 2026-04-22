@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "openapi:gen": "openapi-ts -i ./openapi/schema.json -o ./src/api/generated -c @hey-api/client-axios",
+    "openapi:gen:backend": "openapi-ts -i http://127.0.0.1:8000/api/schema/?format=openapi-json -o ./src/api/generated -c @hey-api/client-axios",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -26,6 +27,8 @@
   "dependencies": {
     "@chakra-ui/react": "^3.34.0",
     "@emotion/react": "^11.14.0",
+    "@tanstack/react-query": "^5.99.2",
+    "@tanstack/react-query-devtools": "^5.99.2",
     "axios": "^1.15.2",
     "next-themes": "^0.4.6",
     "react": "18",

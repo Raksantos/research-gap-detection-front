@@ -6,9 +6,20 @@ React frontend for the `research-gap-detection` backend.
 
 - Node 20+
 - Corepack enabled (`corepack enable`)
-- Backend running at `http://localhost:8000` for local development
+- Backend checkout: `/home/rodrigo/Documents/research-gap-detection` (sibling repo), Django at `http://127.0.0.1:8000`
 
-## Local setup
+## Running with the backend
+
+**Terminal A — Django** (from `research-gap-detection`):
+
+```bash
+cd /home/rodrigo/Documents/research-gap-detection
+uv sync
+uv run python manage.py migrate
+uv run python manage.py runserver 127.0.0.1:8000
+```
+
+**Terminal B — frontend** (this repo):
 
 ```bash
 corepack yarn install
@@ -19,10 +30,18 @@ corepack yarn dev
 
 Frontend runs at `http://localhost:3000`.
 
+Browser requests use same-origin `/api`; Vite forwards them to the backend (`BACKEND_ORIGIN` in `.env`, default `http://127.0.0.1:8000`). The Django project enables CORS for `http://localhost:3000` so you can also point `VITE_API_BASE_URL` at `http://127.0.0.1:8000/api` if you bypass the proxy.
+
+**Codegen from the live backend OpenAPI** (requires Django running):
+
+```bash
+corepack yarn openapi:gen:backend
+```
+
 ## API integration
 
 - Base URL is `VITE_API_BASE_URL` (`/api` by default).
-- In development, Vite proxies `/api` to `http://localhost:8000`.
+- In development, Vite proxies `/api` to `BACKEND_ORIGIN` (see `.env.example`).
 - API client is generated from `openapi/schema.json`:
 
 ```bash

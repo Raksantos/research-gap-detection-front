@@ -4,31 +4,104 @@ export type ClientOptions = {
     baseURL: `${string}://${string}` | (string & {});
 };
 
-export type SearchRequest = {
-    query: string;
-    sources: Array<'openalex' | 'arxiv'>;
-    limit: number;
-    dedupe: boolean;
-    persist: boolean;
-    year_min?: number;
-    year_max?: number;
-    require_abstract: boolean;
+export type CoOccurrenceEdge = {
+    entity_a: CoOccurrenceEndpoint;
+    entity_b: CoOccurrenceEndpoint;
+    weight: number;
 };
 
-export type DocumentItem = {
+export type CoOccurrenceEndpoint = {
+    id: number;
+    type: string;
+    name: string;
+};
+
+export type CoOccurrencesResponse = {
+    job_id: number;
+    total: number;
+    edges: Array<CoOccurrenceEdge>;
+};
+
+export type Document = {
     source: string;
     external_id: string;
     title: string;
-    abstract?: unknown;
+    abstract?: string | null;
     authors: Array<string>;
-    year?: unknown;
-    doi?: unknown;
+    year?: number | null;
+    doi?: string | null;
     keywords: Array<string>;
-    url?: unknown;
+    url?: string | null;
+};
+
+export type EntitiesResponse = {
+    type?: string | null;
+    total: number;
+    entities: Array<Entity>;
+};
+
+export type Entity = {
+    id: number;
+    type: string;
+    name: string;
+    normalized_name: string;
+    document_count: number;
+};
+
+export type MappingJob = {
+    id: number;
+    status: string;
+    created_at: string;
+    finished_at: string | null;
+    document_filter: unknown;
+    stats: unknown;
+    error: string;
+};
+
+export type MappingJobList = {
+    total: number;
+    jobs: Array<MappingJob>;
+};
+
+export type MappingSummary = {
+    job_id: number;
+    status: string;
+    stats: unknown;
+    topics: Array<SummaryTopic>;
+    top_methods: Array<SummaryEntity>;
+    top_datasets: Array<SummaryEntity>;
+    top_tasks: Array<SummaryEntity>;
+    top_metrics: Array<SummaryEntity>;
+    top_cooccurrences: Array<SummaryCoOccurrence>;
+};
+
+export type RunMappingRequest = {
+    source?: string;
+    limit?: number;
+    model?: string;
+    min_topic_size?: number;
+    top_n_words?: number;
+};
+
+export type RunMappingResponse = {
+    job_id: number;
+    status: string;
+    task_id?: string | null;
+};
+
+export type SearchRequest = {
+    query: string;
+    sources?: Array<SourcesEnum>;
+    limit?: number;
+    dedupe?: boolean;
+    persist?: boolean;
+    year_min?: number | null;
+    year_max?: number | null;
+    require_abstract?: boolean;
 };
 
 export type SearchResponse = {
-    documents: Array<DocumentItem>;
+    documents: Array<Document>;
     per_source_counts: {
         [key: string]: number;
     };
@@ -37,18 +110,180 @@ export type SearchResponse = {
     persisted: number;
 };
 
-export type IngestSearchData = {
+/**
+ * * `openalex` - openalex
+ * * `arxiv` - arxiv
+ */
+export type SourcesEnum = 'openalex' | 'arxiv';
+
+export type SummaryCoOccurrence = {
+    entity_a: CoOccurrenceEndpoint;
+    entity_b: CoOccurrenceEndpoint;
+    weight: number;
+};
+
+export type SummaryEntity = {
+    id: number;
+    type: string;
+    name: string;
+    document_count: number;
+};
+
+export type SummaryTopic = {
+    id: number;
+    label: string;
+    keywords: Array<string>;
+    size: number;
+};
+
+export type Topic = {
+    id: number;
+    job_id: number;
+    label: string;
+    keywords: Array<string>;
+    size: number;
+};
+
+export type TopicsResponse = {
+    job_id: number;
+    job_status: string;
+    topics: Array<Topic>;
+};
+
+export type IngestionSearchData = {
     body: SearchRequest;
     path?: never;
     query?: never;
     url: '/api/ingest/search/';
 };
 
-export type IngestSearchResponses = {
-    /**
-     * OK
-     */
+export type IngestionSearchResponses = {
     200: SearchResponse;
 };
 
-export type IngestSearchResponse = IngestSearchResponses[keyof IngestSearchResponses];
+export type IngestionSearchResponse = IngestionSearchResponses[keyof IngestionSearchResponses];
+
+export type MappingCooccurrencesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        job_id?: number;
+        limit?: number;
+        min_weight?: number;
+    };
+    url: '/api/mapping/cooccurrences/';
+};
+
+export type MappingCooccurrencesResponses = {
+    200: CoOccurrencesResponse;
+};
+
+export type MappingCooccurrencesResponse = MappingCooccurrencesResponses[keyof MappingCooccurrencesResponses];
+
+export type MappingEntitiesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+        type?: 'dataset' | 'method' | 'metric' | 'task';
+    };
+    url: '/api/mapping/entities/';
+};
+
+export type MappingEntitiesResponses = {
+    200: EntitiesResponse;
+};
+
+export type MappingEntitiesResponse = MappingEntitiesResponses[keyof MappingEntitiesResponses];
+
+export type MappingJobsListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+        status?: 'failed' | 'pending' | 'running' | 'success';
+    };
+    url: '/api/mapping/jobs/';
+};
+
+export type MappingJobsListResponses = {
+    200: MappingJobList;
+};
+
+export type MappingJobsListResponse = MappingJobsListResponses[keyof MappingJobsListResponses];
+
+export type MappingJobDetailData = {
+    body?: never;
+    path: {
+        job_id: number;
+    };
+    query?: never;
+    url: '/api/mapping/jobs/{job_id}/';
+};
+
+export type MappingJobDetailErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type MappingJobDetailResponses = {
+    200: MappingJob;
+};
+
+export type MappingJobDetailResponse = MappingJobDetailResponses[keyof MappingJobDetailResponses];
+
+export type MappingJobSummaryData = {
+    body?: never;
+    path: {
+        job_id: number;
+    };
+    query?: {
+        cooc_limit?: number;
+        entities_limit?: number;
+        topics_limit?: number;
+    };
+    url: '/api/mapping/jobs/{job_id}/summary/';
+};
+
+export type MappingJobSummaryErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type MappingJobSummaryResponses = {
+    200: MappingSummary;
+};
+
+export type MappingJobSummaryResponse = MappingJobSummaryResponses[keyof MappingJobSummaryResponses];
+
+export type MappingRunData = {
+    body?: RunMappingRequest;
+    path?: never;
+    query?: never;
+    url: '/api/mapping/run/';
+};
+
+export type MappingRunResponses = {
+    202: RunMappingResponse;
+};
+
+export type MappingRunResponse = MappingRunResponses[keyof MappingRunResponses];
+
+export type MappingTopicsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        job_id?: number;
+    };
+    url: '/api/mapping/topics/';
+};
+
+export type MappingTopicsResponses = {
+    200: TopicsResponse;
+};
+
+export type MappingTopicsResponse = MappingTopicsResponses[keyof MappingTopicsResponses];
