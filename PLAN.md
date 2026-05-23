@@ -2,16 +2,24 @@
 
 Frontend em React que consome a API Django do projeto `../research-gap-detection`.
 
-## Contexto do backend (snapshot em 2026-04-20)
+## Contexto do backend (snapshot em 2026-05-23)
 
 - Django 6 + DRF + drf-spectacular
 - Prefixo global: `/api/`
 - Endpoints hoje:
   - `POST /api/ingest/search/` — busca multi-source (OpenAlex, arXiv), normaliza, dedupe, filtra, opcionalmente persiste
+  - Modulo `mapping` (knowledge map sobre o corpus persistido):
+    - `POST /api/mapping/run/` — dispara job assincrono (202), body `RunMappingRequest`, retorna `{ job_id, status, task_id }`
+    - `GET /api/mapping/jobs/` — lista jobs (`?status=&limit=`), retorna `{ total, jobs[] }`
+    - `GET /api/mapping/jobs/{job_id}/` — detalhe de um job (`MappingJob`)
+    - `GET /api/mapping/jobs/{job_id}/summary/` — resumo: topics + top entities (methods/datasets/tasks/metrics) + co-occurrences
+    - `GET /api/mapping/topics/` — topics (`?job_id=`)
+    - `GET /api/mapping/entities/` — entidades (`?type=&limit=`)
+    - `GET /api/mapping/cooccurrences/` — arestas de co-ocorrencia (`?job_id=&limit=&min_weight=`)
   - `GET /api/schema/` — OpenAPI 3
   - `GET /api/docs/` — Swagger UI
   - `GET /api/redoc/` — ReDoc
-- Roadmap declarado (pages placeholder a prever): jobs assincronos, embedding-based dedup, multi-agent gap detection
+- Roadmap remanescente: embedding-based dedup, multi-agent gap detection
 - Backend roda em `http://localhost:8000`
 
 ### Contrato do `POST /api/ingest/search/`
@@ -113,8 +121,8 @@ research-gap-detection-front/
 │   ├── pages/
 │   │   ├── Home/               # landing com atalhos
 │   │   ├── Search/             # formulario + resultados + stats
-│   │   ├── Jobs/               # placeholder (roadmap)
-│   │   ├── Gaps/               # placeholder (roadmap)
+│   │   ├── Jobs/               # mapping: run + lista de jobs (polling)
+│   │   ├── Gaps/               # mapping: summary de um job (topics/entities/cooc)
 │   │   └── NotFound/
 │   ├── components/
 │   │   ├── layout/             # AppShell, Navbar, Sidebar
@@ -177,4 +185,9 @@ research-gap-detection-front/
 ## Status
 
 - [x] Plano aprovado pelo usuario
-- [ ] Implementacao iniciada
+- [x] Scaffold + stack base (Vite, Chakra v3, Router, ESLint/Prettier/Husky, Vitest, Docker)
+- [x] Pagina Search integrada ao `POST /api/ingest/search/`
+- [x] Data fetching via `@tanstack/react-query` (substituiu o hook `useAsync` minimalista do plano original)
+- [x] Pagina Jobs integrada ao modulo `mapping` (run + lista de jobs com polling enquanto pending/running)
+- [x] Pagina Gaps integrada ao `GET /api/mapping/jobs/{job_id}/summary/` (topics, entidades, co-occurrences), lendo `?job_id=`
+- [ ] Roadmap: embedding-based dedup, multi-agent gap detection (telas drill-down de topics/entities/cooccurrences)
