@@ -176,6 +176,22 @@ export type MappingSummary = {
     top_cooccurrences: Array<SummaryCoOccurrence>;
 };
 
+export type PatchedProject = {
+    readonly id?: number;
+    name?: string;
+    description?: string;
+    readonly created_at?: string;
+    readonly updated_at?: string;
+};
+
+export type Project = {
+    readonly id: number;
+    name: string;
+    description?: string;
+    readonly created_at: string;
+    readonly updated_at: string;
+};
+
 export type Register = {
     readonly id: number;
     /**
@@ -303,6 +319,16 @@ export type User = {
      */
     readonly email: string;
     readonly date_joined: string;
+};
+
+export type PatchedProjectWritable = {
+    name?: string;
+    description?: string;
+};
+
+export type ProjectWritable = {
+    name: string;
+    description?: string;
 };
 
 export type RegisterWritable = {
@@ -678,3 +704,77 @@ export type MappingTopicsResponses = {
 };
 
 export type MappingTopicsResponse = MappingTopicsResponses[keyof MappingTopicsResponses];
+
+export type ProjectsListData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/projects/';
+};
+
+export type ProjectsListResponses = {
+    200: Array<Project>;
+};
+
+export type ProjectsListResponse = ProjectsListResponses[keyof ProjectsListResponses];
+
+export type ProjectsCreateData = {
+    body: ProjectWritable;
+    path?: never;
+    query?: never;
+    url: '/api/projects/';
+};
+
+export type ProjectsCreateResponses = {
+    201: Project;
+};
+
+export type ProjectsCreateResponse = ProjectsCreateResponses[keyof ProjectsCreateResponses];
+
+export type ProjectsDeleteData = {
+    body?: never;
+    path: {
+        project_id: number;
+    };
+    query?: never;
+    url: '/api/projects/{project_id}/';
+};
+
+export type ProjectsDeleteResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type ProjectsDeleteResponse = ProjectsDeleteResponses[keyof ProjectsDeleteResponses];
+
+export type ProjectsRetrieveData = {
+    body?: never;
+    path: {
+        project_id: number;
+    };
+    query?: never;
+    url: '/api/projects/{project_id}/';
+};
+
+export type ProjectsRetrieveResponses = {
+    200: Project;
+};
+
+export type ProjectsRetrieveResponse = ProjectsRetrieveResponses[keyof ProjectsRetrieveResponses];
+
+export type ProjectsUpdateData = {
+    body?: PatchedProjectWritable;
+    path: {
+        project_id: number;
+    };
+    query?: never;
+    url: '/api/projects/{project_id}/';
+};
+
+export type ProjectsUpdateResponses = {
+    200: Project;
+};
+
+export type ProjectsUpdateResponse = ProjectsUpdateResponses[keyof ProjectsUpdateResponses];

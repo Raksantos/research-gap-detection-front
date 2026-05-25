@@ -1,9 +1,11 @@
-import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
 import { NavLink, Link as RouterLink, useNavigate } from "react-router-dom";
 import { LogOut, Telescope } from "lucide-react";
 import { useAuth } from "@/auth/authContext";
+import { useSelectedProject } from "@/projects/projectContext";
+import { useProjects } from "@/projects/useProjects";
 
-const navItems = [
+const baseNavItems = [
   { to: "/", label: "Home" },
   { to: "/search", label: "Search" },
   { to: "/jobs", label: "Jobs" },
@@ -12,7 +14,15 @@ const navItems = [
 
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
+  const { selectedProjectId } = useSelectedProject();
+  const { data: projects } = useProjects(isAuthenticated);
   const navigate = useNavigate();
+
+  const navItems = isAuthenticated
+    ? [...baseNavItems, { to: "/projects", label: "Projects" }]
+    : baseNavItems;
+  const activeProject =
+    projects?.find((p) => p.id === selectedProjectId) ?? null;
 
   function handleLogout() {
     logout();
@@ -83,6 +93,15 @@ export function Navbar() {
 
           {isAuthenticated ? (
             <Flex align="center" gap={3}>
+              {activeProject ? (
+                <Box asChild>
+                  <RouterLink to="/projects">
+                    <Badge colorPalette="brand" variant="subtle" maxW="40">
+                      <Text truncate>{activeProject.name}</Text>
+                    </Badge>
+                  </RouterLink>
+                </Box>
+              ) : null}
               {user ? (
                 <Text fontSize="sm" color="fg.muted">
                   {user.username}

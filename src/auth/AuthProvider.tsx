@@ -3,7 +3,7 @@ import type { PropsWithChildren } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { authMe, authRegister, authTokenCreate } from "@/api/generated";
 import type { TokenObtainPair, User } from "@/api/generated";
-import { AUTH_LOGOUT_EVENT, tokenStore } from "@/api/tokenStore";
+import { AUTH_LOGOUT_EVENT, emitAuthLogout, tokenStore } from "@/api/tokenStore";
 import { AuthContext } from "@/auth/authContext";
 import type { AuthContextValue, RegisterInput } from "@/auth/authContext";
 
@@ -60,9 +60,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const logout = useCallback(() => {
-    clearSession();
+    // Broadcast so other providers (e.g. project selection) reset too; the
+    // AUTH_LOGOUT_EVENT listener above performs the session teardown.
     queryClient.clear();
-  }, [clearSession, queryClient]);
+    emitAuthLogout();
+  }, [queryClient]);
 
   const user = meQuery.data ?? null;
 

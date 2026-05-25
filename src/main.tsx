@@ -10,6 +10,7 @@ import { queryClient } from "@/api/queryClient";
 import { router } from "@/router";
 import { system } from "@/theme/system";
 import { AuthProvider } from "@/auth/AuthProvider";
+import { ProjectProvider } from "@/projects/ProjectProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -17,7 +18,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <ChakraProvider value={system}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <RouterProvider router={router} />
+            <ProjectProvider>
+              <RouterProvider router={router} />
+            </ProjectProvider>
           </AuthProvider>
           {import.meta.env.DEV ? <ReactQueryDevtools initialIsOpen={false} /> : null}
         </QueryClientProvider>

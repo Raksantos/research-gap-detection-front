@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthMeData, AuthMeResponses, AuthRegisterData, AuthRegisterResponses, AuthTokenCreateData, AuthTokenCreateResponses, AuthTokenRefreshCreateData, AuthTokenRefreshCreateResponses, AuthTokenVerifyCreateData, AuthTokenVerifyCreateResponses, FeasibilityAssessData, FeasibilityAssessErrors, FeasibilityAssessResponses, FeasibilityDetailData, FeasibilityDetailErrors, FeasibilityDetailResponses, FeasibilityListData, FeasibilityListResponses, GapsGapDetailData, GapsGapDetailErrors, GapsGapDetailResponses, GapsJobDetailData, GapsJobDetailErrors, GapsJobDetailResponses, GapsJobGapsData, GapsJobGapsErrors, GapsJobGapsResponses, GapsJobsListData, GapsJobsListResponses, GapsRunData, GapsRunResponses, IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses } from './types.gen';
+import type { AuthMeData, AuthMeResponses, AuthRegisterData, AuthRegisterResponses, AuthTokenCreateData, AuthTokenCreateResponses, AuthTokenRefreshCreateData, AuthTokenRefreshCreateResponses, AuthTokenVerifyCreateData, AuthTokenVerifyCreateResponses, FeasibilityAssessData, FeasibilityAssessErrors, FeasibilityAssessResponses, FeasibilityDetailData, FeasibilityDetailErrors, FeasibilityDetailResponses, FeasibilityListData, FeasibilityListResponses, GapsGapDetailData, GapsGapDetailErrors, GapsGapDetailResponses, GapsJobDetailData, GapsJobDetailErrors, GapsJobDetailResponses, GapsJobGapsData, GapsJobGapsErrors, GapsJobGapsResponses, GapsJobsListData, GapsJobsListResponses, GapsRunData, GapsRunResponses, IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDeleteData, ProjectsDeleteResponses, ProjectsListData, ProjectsListResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -257,4 +257,61 @@ export const mappingTopics = <ThrowOnError extends boolean = false>(options?: Op
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/topics/',
     ...options
+});
+
+/**
+ * List the authenticated user's projects.
+ */
+export const projectsList = <ThrowOnError extends boolean = false>(options?: Options<ProjectsListData, ThrowOnError>) => (options?.client ?? client).get<ProjectsListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/projects/',
+    ...options
+});
+
+/**
+ * Create a project owned by the authenticated user.
+ */
+export const projectsCreate = <ThrowOnError extends boolean = false>(options: Options<ProjectsCreateData, ThrowOnError>) => (options.client ?? client).post<ProjectsCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/projects/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Delete one of the authenticated user's projects.
+ */
+export const projectsDelete = <ThrowOnError extends boolean = false>(options: Options<ProjectsDeleteData, ThrowOnError>) => (options.client ?? client).delete<ProjectsDeleteResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/projects/{project_id}/',
+    ...options
+});
+
+/**
+ * Retrieve one of the authenticated user's projects.
+ */
+export const projectsRetrieve = <ThrowOnError extends boolean = false>(options: Options<ProjectsRetrieveData, ThrowOnError>) => (options.client ?? client).get<ProjectsRetrieveResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/projects/{project_id}/',
+    ...options
+});
+
+/**
+ * Update one of the authenticated user's projects.
+ */
+export const projectsUpdate = <ThrowOnError extends boolean = false>(options: Options<ProjectsUpdateData, ThrowOnError>) => (options.client ?? client).patch<ProjectsUpdateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/projects/{project_id}/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
