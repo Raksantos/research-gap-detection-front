@@ -9,13 +9,16 @@ import "@/api/bootstrap";
 import { queryClient } from "@/api/queryClient";
 import { router } from "@/router";
 import { system } from "@/theme/system";
+import { AuthProvider } from "@/auth/AuthProvider";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <ChakraProvider value={system}>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
           {import.meta.env.DEV ? <ReactQueryDevtools initialIsOpen={false} /> : null}
         </QueryClientProvider>
       </ChakraProvider>

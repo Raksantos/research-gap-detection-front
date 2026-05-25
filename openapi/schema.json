@@ -6,6 +6,559 @@
     "description": "API documentation for the Research Gap Detection project."
   },
   "paths": {
+    "/api/auth/me/": {
+      "get": {
+        "operationId": "auth_me",
+        "description": "Return the currently authenticated user.",
+        "tags": ["Auth"],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/auth/register/": {
+      "post": {
+        "operationId": "auth_register",
+        "description": "Create a new user account.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Register"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Register"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Register"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [{}],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/auth/token/": {
+      "post": {
+        "operationId": "auth_token_create",
+        "description": "Takes a set of user credentials and returns an access and refresh JSON web\ntoken pair to prove the authentication of those credentials.",
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenObtainPair"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenObtainPair"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenObtainPair"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenObtainPair"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/auth/token/refresh/": {
+      "post": {
+        "operationId": "auth_token_refresh_create",
+        "description": "Takes a refresh type JSON web token and returns an access type JSON web\ntoken if the refresh token is valid.",
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRefresh"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRefresh"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRefresh"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenRefresh"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/auth/token/verify/": {
+      "post": {
+        "operationId": "auth_token_verify_create",
+        "description": "Takes a token and indicates if it is valid.  This view provides no\ninformation about a token's fitness for a particular use.",
+        "tags": ["auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenVerify"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenVerify"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenVerify"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenVerify"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/feasibility/": {
+      "get": {
+        "operationId": "feasibility_list",
+        "description": "List feasibility assessments ordered by descending overall score.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "complexity_tier",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cost_tier",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gap_detection_job_id",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": ["Feasibility"],
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeasibilityAssessment"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/feasibility/{gap_id}/": {
+      "get": {
+        "operationId": "feasibility_detail",
+        "description": "Retrieve feasibility assessment for a single gap.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "gap_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": ["Feasibility"],
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeasibilityAssessment"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/feasibility/assess/": {
+      "post": {
+        "operationId": "feasibility_assess",
+        "description": "Synchronously assess feasibility for gaps in a gap-detection job.",
+        "tags": ["Feasibility"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeasibilityAssessRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/FeasibilityAssessRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FeasibilityAssessRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeasibilityAssessResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/gaps/{gap_id}/": {
+      "get": {
+        "operationId": "gaps_gap_detail",
+        "description": "Retrieve a single gap with all evidence rows.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "gap_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": ["Gaps"],
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapDetail"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/gaps/jobs/": {
+      "get": {
+        "operationId": "gaps_jobs_list",
+        "description": "List gap-detection jobs (most recent first).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mapping_job_id",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": ["failed", "pending", "running", "success"]
+            }
+          }
+        ],
+        "tags": ["Gaps"],
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapDetectionJobList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/gaps/jobs/{job_id}/": {
+      "get": {
+        "operationId": "gaps_job_detail",
+        "description": "Retrieve a single gap-detection job with full stats and error.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": ["Gaps"],
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapDetectionJob"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/gaps/jobs/{job_id}/gaps/": {
+      "get": {
+        "operationId": "gaps_job_gaps",
+        "description": "List the gaps produced by a job, ordered by descending rarity score, optionally filtered by gap type.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "future_work",
+                "limitation",
+                "rare_combination",
+                "underexplored_topic"
+              ]
+            }
+          }
+        ],
+        "tags": ["Gaps"],
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapsResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/gaps/run/": {
+      "post": {
+        "operationId": "gaps_run",
+        "description": "Create a new GapDetectionJob bound to an existing successful MappingJob and enqueue the detection pipeline. Returns 202 with the job_id; clients should poll /api/gaps/jobs/{id}/.",
+        "tags": ["Gaps"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunGapDetectionRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/RunGapDetectionRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/RunGapDetectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunGapDetectionResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/ingest/search/": {
       "post": {
         "operationId": "ingestion_search",
@@ -33,10 +586,7 @@
         },
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -84,10 +634,7 @@
         "tags": ["Mapping"],
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -129,10 +676,7 @@
         "tags": ["Mapping"],
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -174,10 +718,7 @@
         "tags": ["Mapping"],
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -212,10 +753,7 @@
         "tags": ["Mapping"],
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -274,10 +812,7 @@
         "tags": ["Mapping"],
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -324,10 +859,7 @@
         },
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -361,10 +893,7 @@
         "tags": ["Mapping"],
         "security": [
           {
-            "cookieAuth": []
-          },
-          {
-            "basicAuth": []
+            "jwtAuth": []
           },
           {}
         ],
@@ -516,6 +1045,372 @@
         },
         "required": ["document_count", "id", "name", "normalized_name", "type"]
       },
+      "EntityRef": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name", "type"]
+      },
+      "FeasibilityAssessRequest": {
+        "type": "object",
+        "properties": {
+          "gap_detection_job_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "weights": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "double",
+              "minimum": 0.0
+            }
+          },
+          "max_gaps": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "force_refresh": {
+            "type": "boolean",
+            "default": false
+          },
+          "llm_model": {
+            "type": "string"
+          }
+        },
+        "required": ["gap_detection_job_id"]
+      },
+      "FeasibilityAssessResponse": {
+        "type": "object",
+        "properties": {
+          "gap_detection_job_id": {
+            "type": "integer"
+          },
+          "assessed_count": {
+            "type": "integer"
+          },
+          "weights": {},
+          "assessments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeasibilityAssessment"
+            }
+          }
+        },
+        "required": [
+          "assessed_count",
+          "assessments",
+          "gap_detection_job_id",
+          "weights"
+        ]
+      },
+      "FeasibilityAssessment": {
+        "type": "object",
+        "properties": {
+          "gap_id": {
+            "type": "integer"
+          },
+          "gap_detection_job_id": {
+            "type": "integer"
+          },
+          "overall_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "dataset_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "benchmark_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "framework_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "cost_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "complexity_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "cost_tier": {
+            "type": "string"
+          },
+          "complexity_tier": {
+            "type": "string"
+          },
+          "matched_datasets": {},
+          "matched_benchmarks": {},
+          "matched_frameworks": {},
+          "justification": {
+            "type": "string"
+          },
+          "llm_model": {
+            "type": "string"
+          },
+          "config": {},
+          "llm_raw": {},
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "benchmark_score",
+          "complexity_score",
+          "complexity_tier",
+          "config",
+          "cost_score",
+          "cost_tier",
+          "dataset_score",
+          "framework_score",
+          "gap_detection_job_id",
+          "gap_id",
+          "justification",
+          "llm_model",
+          "llm_raw",
+          "matched_benchmarks",
+          "matched_datasets",
+          "matched_frameworks",
+          "overall_score",
+          "updated_at"
+        ]
+      },
+      "GapDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "job_id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "entity_a": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              }
+            ],
+            "nullable": true
+          },
+          "entity_b": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              }
+            ],
+            "nullable": true
+          },
+          "rarity_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "support_count": {
+            "type": "integer"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GapEvidence"
+            }
+          }
+        },
+        "required": [
+          "entity_a",
+          "entity_b",
+          "evidence",
+          "id",
+          "job_id",
+          "rarity_score",
+          "rationale",
+          "summary",
+          "support_count",
+          "type"
+        ]
+      },
+      "GapDetectionJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "mapping_job_id": {
+            "type": "integer"
+          },
+          "llm_model": {
+            "type": "string"
+          },
+          "llm_base_url": {
+            "type": "string"
+          },
+          "config": {},
+          "stats": {},
+          "error": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "config",
+          "created_at",
+          "error",
+          "finished_at",
+          "id",
+          "llm_base_url",
+          "llm_model",
+          "mapping_job_id",
+          "stats",
+          "status"
+        ]
+      },
+      "GapDetectionJobList": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GapDetectionJob"
+            }
+          }
+        },
+        "required": ["jobs", "total"]
+      },
+      "GapEvidence": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "doi": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "phrase_type": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "llm_confidence": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "document_id",
+          "llm_confidence",
+          "phrase_type",
+          "quote",
+          "title"
+        ]
+      },
+      "GapListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "entity_a": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              }
+            ],
+            "nullable": true
+          },
+          "entity_b": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              }
+            ],
+            "nullable": true
+          },
+          "rarity_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "support_count": {
+            "type": "integer"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_a",
+          "entity_b",
+          "id",
+          "rarity_score",
+          "summary",
+          "support_count",
+          "type"
+        ]
+      },
+      "GapsResponse": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "gaps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GapListItem"
+            }
+          }
+        },
+        "required": ["gaps", "job_id", "total"]
+      },
       "MappingJob": {
         "type": "object",
         "properties": {
@@ -623,6 +1518,72 @@
           "top_tasks",
           "topics"
         ]
+      },
+      "Register": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "username": {
+            "type": "string",
+            "description": "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+            "pattern": "^[\\w.@+-]+$",
+            "maxLength": 150
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email address",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true,
+            "minLength": 8
+          }
+        },
+        "required": ["id", "password", "username"]
+      },
+      "RunGapDetectionRequest": {
+        "type": "object",
+        "properties": {
+          "mapping_job_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "llm_model": {
+            "type": "string"
+          },
+          "rarity_threshold": {
+            "type": "number",
+            "format": "double",
+            "maximum": 1.0,
+            "minimum": 0.0
+          },
+          "max_gaps": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": ["mapping_job_id"]
+      },
+      "RunGapDetectionResponse": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["job_id", "status"]
       },
       "RunMappingRequest": {
         "type": "object",
@@ -798,6 +1759,52 @@
         },
         "required": ["id", "keywords", "label", "size"]
       },
+      "TokenObtainPair": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "access": {
+            "type": "string",
+            "readOnly": true
+          },
+          "refresh": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": ["access", "password", "refresh", "username"]
+      },
+      "TokenRefresh": {
+        "type": "object",
+        "properties": {
+          "access": {
+            "type": "string",
+            "readOnly": true
+          },
+          "refresh": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": ["access", "refresh"]
+      },
+      "TokenVerify": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": ["token"]
+      },
       "Topic": {
         "type": "object",
         "properties": {
@@ -839,17 +1846,39 @@
           }
         },
         "required": ["job_id", "job_status", "topics"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "username": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "readOnly": true,
+            "title": "Email address"
+          },
+          "date_joined": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": ["date_joined", "email", "id", "username"]
       }
     },
     "securitySchemes": {
-      "basicAuth": {
+      "jwtAuth": {
         "type": "http",
-        "scheme": "basic"
-      },
-      "cookieAuth": {
-        "type": "apiKey",
-        "in": "cookie",
-        "name": "sessionid"
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

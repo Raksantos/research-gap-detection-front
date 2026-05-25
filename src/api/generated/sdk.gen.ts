@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses } from './types.gen';
+import type { AuthMeData, AuthMeResponses, AuthRegisterData, AuthRegisterResponses, AuthTokenCreateData, AuthTokenCreateResponses, AuthTokenRefreshCreateData, AuthTokenRefreshCreateResponses, AuthTokenVerifyCreateData, AuthTokenVerifyCreateResponses, FeasibilityAssessData, FeasibilityAssessErrors, FeasibilityAssessResponses, FeasibilityDetailData, FeasibilityDetailErrors, FeasibilityDetailResponses, FeasibilityListData, FeasibilityListResponses, GapsGapDetailData, GapsGapDetailErrors, GapsGapDetailResponses, GapsJobDetailData, GapsJobDetailErrors, GapsJobDetailResponses, GapsJobGapsData, GapsJobGapsErrors, GapsJobGapsResponses, GapsJobsListData, GapsJobsListResponses, GapsRunData, GapsRunResponses, IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -19,15 +19,164 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 /**
+ * Return the currently authenticated user.
+ */
+export const authMe = <ThrowOnError extends boolean = false>(options?: Options<AuthMeData, ThrowOnError>) => (options?.client ?? client).get<AuthMeResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/auth/me/',
+    ...options
+});
+
+/**
+ * Create a new user account.
+ */
+export const authRegister = <ThrowOnError extends boolean = false>(options: Options<AuthRegisterData, ThrowOnError>) => (options.client ?? client).post<AuthRegisterResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/auth/register/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Takes a set of user credentials and returns an access and refresh JSON web
+ * token pair to prove the authentication of those credentials.
+ */
+export const authTokenCreate = <ThrowOnError extends boolean = false>(options: Options<AuthTokenCreateData, ThrowOnError>) => (options.client ?? client).post<AuthTokenCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/auth/token/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Takes a refresh type JSON web token and returns an access type JSON web
+ * token if the refresh token is valid.
+ */
+export const authTokenRefreshCreate = <ThrowOnError extends boolean = false>(options: Options<AuthTokenRefreshCreateData, ThrowOnError>) => (options.client ?? client).post<AuthTokenRefreshCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/auth/token/refresh/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Takes a token and indicates if it is valid.  This view provides no
+ * information about a token's fitness for a particular use.
+ */
+export const authTokenVerifyCreate = <ThrowOnError extends boolean = false>(options: Options<AuthTokenVerifyCreateData, ThrowOnError>) => (options.client ?? client).post<AuthTokenVerifyCreateResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/auth/token/verify/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List feasibility assessments ordered by descending overall score.
+ */
+export const feasibilityList = <ThrowOnError extends boolean = false>(options?: Options<FeasibilityListData, ThrowOnError>) => (options?.client ?? client).get<FeasibilityListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/feasibility/',
+    ...options
+});
+
+/**
+ * Retrieve feasibility assessment for a single gap.
+ */
+export const feasibilityDetail = <ThrowOnError extends boolean = false>(options: Options<FeasibilityDetailData, ThrowOnError>) => (options.client ?? client).get<FeasibilityDetailResponses, FeasibilityDetailErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/feasibility/{gap_id}/',
+    ...options
+});
+
+/**
+ * Synchronously assess feasibility for gaps in a gap-detection job.
+ */
+export const feasibilityAssess = <ThrowOnError extends boolean = false>(options: Options<FeasibilityAssessData, ThrowOnError>) => (options.client ?? client).post<FeasibilityAssessResponses, FeasibilityAssessErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/feasibility/assess/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Retrieve a single gap with all evidence rows.
+ */
+export const gapsGapDetail = <ThrowOnError extends boolean = false>(options: Options<GapsGapDetailData, ThrowOnError>) => (options.client ?? client).get<GapsGapDetailResponses, GapsGapDetailErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/gaps/{gap_id}/',
+    ...options
+});
+
+/**
+ * List gap-detection jobs (most recent first).
+ */
+export const gapsJobsList = <ThrowOnError extends boolean = false>(options?: Options<GapsJobsListData, ThrowOnError>) => (options?.client ?? client).get<GapsJobsListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/gaps/jobs/',
+    ...options
+});
+
+/**
+ * Retrieve a single gap-detection job with full stats and error.
+ */
+export const gapsJobDetail = <ThrowOnError extends boolean = false>(options: Options<GapsJobDetailData, ThrowOnError>) => (options.client ?? client).get<GapsJobDetailResponses, GapsJobDetailErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/gaps/jobs/{job_id}/',
+    ...options
+});
+
+/**
+ * List the gaps produced by a job, ordered by descending rarity score, optionally filtered by gap type.
+ */
+export const gapsJobGaps = <ThrowOnError extends boolean = false>(options: Options<GapsJobGapsData, ThrowOnError>) => (options.client ?? client).get<GapsJobGapsResponses, GapsJobGapsErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/gaps/jobs/{job_id}/gaps/',
+    ...options
+});
+
+/**
+ * Create a new GapDetectionJob bound to an existing successful MappingJob and enqueue the detection pipeline. Returns 202 with the job_id; clients should poll /api/gaps/jobs/{id}/.
+ */
+export const gapsRun = <ThrowOnError extends boolean = false>(options: Options<GapsRunData, ThrowOnError>) => (options.client ?? client).post<GapsRunResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/gaps/run/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Run a query against the configured corpus sources (OpenAlex, arXiv), normalize, filter, deduplicate and optionally persist.
  */
 export const ingestionSearch = <ThrowOnError extends boolean = false>(options: Options<IngestionSearchData, ThrowOnError>) => (options.client ?? client).post<IngestionSearchResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/ingest/search/',
     ...options,
     headers: {
@@ -41,11 +190,7 @@ export const ingestionSearch = <ThrowOnError extends boolean = false>(options: O
  */
 export const mappingCooccurrences = <ThrowOnError extends boolean = false>(options?: Options<MappingCooccurrencesData, ThrowOnError>) => (options?.client ?? client).get<MappingCooccurrencesResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/cooccurrences/',
     ...options
 });
@@ -55,11 +200,7 @@ export const mappingCooccurrences = <ThrowOnError extends boolean = false>(optio
  */
 export const mappingEntities = <ThrowOnError extends boolean = false>(options?: Options<MappingEntitiesData, ThrowOnError>) => (options?.client ?? client).get<MappingEntitiesResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/entities/',
     ...options
 });
@@ -69,11 +210,7 @@ export const mappingEntities = <ThrowOnError extends boolean = false>(options?: 
  */
 export const mappingJobsList = <ThrowOnError extends boolean = false>(options?: Options<MappingJobsListData, ThrowOnError>) => (options?.client ?? client).get<MappingJobsListResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/jobs/',
     ...options
 });
@@ -83,11 +220,7 @@ export const mappingJobsList = <ThrowOnError extends boolean = false>(options?: 
  */
 export const mappingJobDetail = <ThrowOnError extends boolean = false>(options: Options<MappingJobDetailData, ThrowOnError>) => (options.client ?? client).get<MappingJobDetailResponses, MappingJobDetailErrors, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/jobs/{job_id}/',
     ...options
 });
@@ -97,11 +230,7 @@ export const mappingJobDetail = <ThrowOnError extends boolean = false>(options: 
  */
 export const mappingJobSummary = <ThrowOnError extends boolean = false>(options: Options<MappingJobSummaryData, ThrowOnError>) => (options.client ?? client).get<MappingJobSummaryResponses, MappingJobSummaryErrors, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/jobs/{job_id}/summary/',
     ...options
 });
@@ -111,11 +240,7 @@ export const mappingJobSummary = <ThrowOnError extends boolean = false>(options:
  */
 export const mappingRun = <ThrowOnError extends boolean = false>(options?: Options<MappingRunData, ThrowOnError>) => (options?.client ?? client).post<MappingRunResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/run/',
     ...options,
     headers: {
@@ -129,11 +254,7 @@ export const mappingRun = <ThrowOnError extends boolean = false>(options?: Optio
  */
 export const mappingTopics = <ThrowOnError extends boolean = false>(options?: Options<MappingTopicsData, ThrowOnError>) => (options?.client ?? client).get<MappingTopicsResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    security: [{
-            in: 'cookie',
-            name: 'sessionid',
-            type: 'apiKey'
-        }, { scheme: 'basic', type: 'http' }],
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/topics/',
     ...options
 });

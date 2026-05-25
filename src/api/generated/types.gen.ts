@@ -48,6 +48,107 @@ export type Entity = {
     document_count: number;
 };
 
+export type EntityRef = {
+    id: number;
+    type: string;
+    name: string;
+};
+
+export type FeasibilityAssessRequest = {
+    gap_detection_job_id: number;
+    weights?: {
+        [key: string]: number;
+    };
+    max_gaps?: number;
+    force_refresh?: boolean;
+    llm_model?: string;
+};
+
+export type FeasibilityAssessResponse = {
+    gap_detection_job_id: number;
+    assessed_count: number;
+    weights: unknown;
+    assessments: Array<FeasibilityAssessment>;
+};
+
+export type FeasibilityAssessment = {
+    gap_id: number;
+    gap_detection_job_id: number;
+    overall_score: number;
+    dataset_score: number;
+    benchmark_score: number;
+    framework_score: number;
+    cost_score: number;
+    complexity_score: number;
+    cost_tier: string;
+    complexity_tier: string;
+    matched_datasets: unknown;
+    matched_benchmarks: unknown;
+    matched_frameworks: unknown;
+    justification: string;
+    llm_model: string;
+    config: unknown;
+    llm_raw: unknown;
+    updated_at: string;
+};
+
+export type GapDetail = {
+    id: number;
+    job_id: number;
+    type: string;
+    entity_a: EntityRef | null;
+    entity_b: EntityRef | null;
+    rarity_score: number;
+    support_count: number;
+    summary: string;
+    rationale: string;
+    evidence: Array<GapEvidence>;
+};
+
+export type GapDetectionJob = {
+    id: number;
+    status: string;
+    mapping_job_id: number;
+    llm_model: string;
+    llm_base_url: string;
+    config: unknown;
+    stats: unknown;
+    error: string;
+    created_at: string;
+    finished_at: string | null;
+};
+
+export type GapDetectionJobList = {
+    total: number;
+    jobs: Array<GapDetectionJob>;
+};
+
+export type GapEvidence = {
+    document_id: number;
+    title: string;
+    doi?: string | null;
+    url?: string | null;
+    phrase_type: string;
+    quote: string;
+    llm_confidence: number;
+};
+
+export type GapListItem = {
+    id: number;
+    type: string;
+    entity_a: EntityRef | null;
+    entity_b: EntityRef | null;
+    rarity_score: number;
+    support_count: number;
+    summary: string;
+};
+
+export type GapsResponse = {
+    job_id: number;
+    total: number;
+    gaps: Array<GapListItem>;
+};
+
 export type MappingJob = {
     id: number;
     status: string;
@@ -73,6 +174,31 @@ export type MappingSummary = {
     top_tasks: Array<SummaryEntity>;
     top_metrics: Array<SummaryEntity>;
     top_cooccurrences: Array<SummaryCoOccurrence>;
+};
+
+export type Register = {
+    readonly id: number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    username: string;
+    /**
+     * Email address
+     */
+    email?: string;
+};
+
+export type RunGapDetectionRequest = {
+    mapping_job_id: number;
+    llm_model?: string;
+    rarity_threshold?: number;
+    max_gaps?: number;
+};
+
+export type RunGapDetectionResponse = {
+    job_id: number;
+    status: string;
+    task_id?: string | null;
 };
 
 export type RunMappingRequest = {
@@ -136,6 +262,22 @@ export type SummaryTopic = {
     size: number;
 };
 
+export type TokenObtainPair = {
+    username: string;
+    password: string;
+    readonly access: string;
+    readonly refresh: string;
+};
+
+export type TokenRefresh = {
+    readonly access: string;
+    refresh: string;
+};
+
+export type TokenVerify = {
+    token: string;
+};
+
 export type Topic = {
     id: number;
     job_id: number;
@@ -149,6 +291,255 @@ export type TopicsResponse = {
     job_status: string;
     topics: Array<Topic>;
 };
+
+export type User = {
+    readonly id: number;
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    readonly username: string;
+    /**
+     * Email address
+     */
+    readonly email: string;
+    readonly date_joined: string;
+};
+
+export type RegisterWritable = {
+    /**
+     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+    username: string;
+    /**
+     * Email address
+     */
+    email?: string;
+    password: string;
+};
+
+export type AuthMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/me/';
+};
+
+export type AuthMeResponses = {
+    200: User;
+};
+
+export type AuthMeResponse = AuthMeResponses[keyof AuthMeResponses];
+
+export type AuthRegisterData = {
+    body: RegisterWritable;
+    path?: never;
+    query?: never;
+    url: '/api/auth/register/';
+};
+
+export type AuthRegisterResponses = {
+    201: User;
+};
+
+export type AuthRegisterResponse = AuthRegisterResponses[keyof AuthRegisterResponses];
+
+export type AuthTokenCreateData = {
+    body: TokenObtainPair;
+    path?: never;
+    query?: never;
+    url: '/api/auth/token/';
+};
+
+export type AuthTokenCreateResponses = {
+    200: TokenObtainPair;
+};
+
+export type AuthTokenCreateResponse = AuthTokenCreateResponses[keyof AuthTokenCreateResponses];
+
+export type AuthTokenRefreshCreateData = {
+    body: TokenRefresh;
+    path?: never;
+    query?: never;
+    url: '/api/auth/token/refresh/';
+};
+
+export type AuthTokenRefreshCreateResponses = {
+    200: TokenRefresh;
+};
+
+export type AuthTokenRefreshCreateResponse = AuthTokenRefreshCreateResponses[keyof AuthTokenRefreshCreateResponses];
+
+export type AuthTokenVerifyCreateData = {
+    body: TokenVerify;
+    path?: never;
+    query?: never;
+    url: '/api/auth/token/verify/';
+};
+
+export type AuthTokenVerifyCreateResponses = {
+    200: TokenVerify;
+};
+
+export type AuthTokenVerifyCreateResponse = AuthTokenVerifyCreateResponses[keyof AuthTokenVerifyCreateResponses];
+
+export type FeasibilityListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        complexity_tier?: string;
+        cost_tier?: string;
+        gap_detection_job_id?: number;
+        limit?: number;
+    };
+    url: '/api/feasibility/';
+};
+
+export type FeasibilityListResponses = {
+    200: Array<FeasibilityAssessment>;
+};
+
+export type FeasibilityListResponse = FeasibilityListResponses[keyof FeasibilityListResponses];
+
+export type FeasibilityDetailData = {
+    body?: never;
+    path: {
+        gap_id: number;
+    };
+    query?: never;
+    url: '/api/feasibility/{gap_id}/';
+};
+
+export type FeasibilityDetailErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type FeasibilityDetailResponses = {
+    200: FeasibilityAssessment;
+};
+
+export type FeasibilityDetailResponse = FeasibilityDetailResponses[keyof FeasibilityDetailResponses];
+
+export type FeasibilityAssessData = {
+    body: FeasibilityAssessRequest;
+    path?: never;
+    query?: never;
+    url: '/api/feasibility/assess/';
+};
+
+export type FeasibilityAssessErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type FeasibilityAssessResponses = {
+    200: FeasibilityAssessResponse;
+};
+
+export type FeasibilityAssessResponse2 = FeasibilityAssessResponses[keyof FeasibilityAssessResponses];
+
+export type GapsGapDetailData = {
+    body?: never;
+    path: {
+        gap_id: number;
+    };
+    query?: never;
+    url: '/api/gaps/{gap_id}/';
+};
+
+export type GapsGapDetailErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type GapsGapDetailResponses = {
+    200: GapDetail;
+};
+
+export type GapsGapDetailResponse = GapsGapDetailResponses[keyof GapsGapDetailResponses];
+
+export type GapsJobsListData = {
+    body?: never;
+    path?: never;
+    query?: {
+        limit?: number;
+        mapping_job_id?: number;
+        status?: 'failed' | 'pending' | 'running' | 'success';
+    };
+    url: '/api/gaps/jobs/';
+};
+
+export type GapsJobsListResponses = {
+    200: GapDetectionJobList;
+};
+
+export type GapsJobsListResponse = GapsJobsListResponses[keyof GapsJobsListResponses];
+
+export type GapsJobDetailData = {
+    body?: never;
+    path: {
+        job_id: number;
+    };
+    query?: never;
+    url: '/api/gaps/jobs/{job_id}/';
+};
+
+export type GapsJobDetailErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type GapsJobDetailResponses = {
+    200: GapDetectionJob;
+};
+
+export type GapsJobDetailResponse = GapsJobDetailResponses[keyof GapsJobDetailResponses];
+
+export type GapsJobGapsData = {
+    body?: never;
+    path: {
+        job_id: number;
+    };
+    query?: {
+        limit?: number;
+        type?: 'future_work' | 'limitation' | 'rare_combination' | 'underexplored_topic';
+    };
+    url: '/api/gaps/jobs/{job_id}/gaps/';
+};
+
+export type GapsJobGapsErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type GapsJobGapsResponses = {
+    200: GapsResponse;
+};
+
+export type GapsJobGapsResponse = GapsJobGapsResponses[keyof GapsJobGapsResponses];
+
+export type GapsRunData = {
+    body: RunGapDetectionRequest;
+    path?: never;
+    query?: never;
+    url: '/api/gaps/run/';
+};
+
+export type GapsRunResponses = {
+    202: RunGapDetectionResponse;
+};
+
+export type GapsRunResponse = GapsRunResponses[keyof GapsRunResponses];
 
 export type IngestionSearchData = {
     body: SearchRequest;

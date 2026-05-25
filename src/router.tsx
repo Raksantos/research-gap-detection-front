@@ -4,9 +4,13 @@ import { HomePage } from "@/pages/Home";
 import { SearchPage } from "@/pages/Search";
 import { JobsPage } from "@/pages/Jobs";
 import { GapsPage } from "@/pages/Gaps";
+import { LoginPage } from "@/pages/Login";
+import { RegisterPage } from "@/pages/Register";
 import { NotFoundPage } from "@/pages/NotFound";
 
 export const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
   {
     path: "/",
     element: <App />,

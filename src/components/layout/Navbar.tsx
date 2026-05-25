@@ -1,6 +1,7 @@
-import { Box, Flex, Heading } from "@chakra-ui/react";
-import { NavLink, Link as RouterLink } from "react-router-dom";
-import { Telescope } from "lucide-react";
+import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
+import { NavLink, Link as RouterLink, useNavigate } from "react-router-dom";
+import { LogOut, Telescope } from "lucide-react";
+import { useAuth } from "@/auth/authContext";
 
 const navItems = [
   { to: "/", label: "Home" },
@@ -10,6 +11,14 @@ const navItems = [
 ];
 
 export function Navbar() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
+
   return (
     <Box
       as="header"
@@ -47,26 +56,53 @@ export function Navbar() {
           </RouterLink>
         </Flex>
 
-        <Flex as="nav" gap={1}>
-          {navItems.map((item) => (
-            <Box
-              key={item.to}
-              asChild
-              px={3}
-              py={2}
-              borderRadius="md"
-              fontSize="sm"
-              fontWeight="500"
-              color="fg.muted"
-              transition="color .15s ease, background .15s ease"
-              _hover={{ color: "fg", bg: "bg.muted" }}
-              css={{ "&.active": { color: "brand.fg", bg: "brand.subtle" } }}
-            >
-              <NavLink to={item.to} end={item.to === "/"}>
-                {item.label}
-              </NavLink>
-            </Box>
-          ))}
+        <Flex align="center" gap={3}>
+          <Flex as="nav" gap={1}>
+            {navItems.map((item) => (
+              <Box
+                key={item.to}
+                asChild
+                px={3}
+                py={2}
+                borderRadius="md"
+                fontSize="sm"
+                fontWeight="500"
+                color="fg.muted"
+                transition="color .15s ease, background .15s ease"
+                _hover={{ color: "fg", bg: "bg.muted" }}
+                css={{ "&.active": { color: "brand.fg", bg: "brand.subtle" } }}
+              >
+                <NavLink to={item.to} end={item.to === "/"}>
+                  {item.label}
+                </NavLink>
+              </Box>
+            ))}
+          </Flex>
+
+          <Box w="1px" h={6} bg="border" />
+
+          {isAuthenticated ? (
+            <Flex align="center" gap={3}>
+              {user ? (
+                <Text fontSize="sm" color="fg.muted">
+                  {user.username}
+                </Text>
+              ) : null}
+              <Button
+                size="sm"
+                variant="ghost"
+                colorPalette="gray"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                Sign out
+              </Button>
+            </Flex>
+          ) : (
+            <Button asChild size="sm" colorPalette="brand">
+              <RouterLink to="/login">Sign in</RouterLink>
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Box>
