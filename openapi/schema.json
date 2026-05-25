@@ -225,8 +225,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -263,8 +262,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -311,8 +309,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -349,8 +346,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -372,7 +368,7 @@
     "/api/gaps/jobs/": {
       "get": {
         "operationId": "gaps_jobs_list",
-        "description": "List gap-detection jobs (most recent first).",
+        "description": "List gap-detection jobs for a project (most recent first).",
         "parameters": [
           {
             "in": "query",
@@ -390,6 +386,14 @@
           },
           {
             "in": "query",
+            "name": "project_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
             "name": "status",
             "schema": {
               "type": "string",
@@ -401,8 +405,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -436,8 +439,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -494,8 +496,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -542,8 +543,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "202": {
@@ -587,8 +587,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -629,14 +628,21 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "project_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
           }
         ],
         "tags": ["Mapping"],
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -666,6 +672,14 @@
           },
           {
             "in": "query",
+            "name": "project_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
             "name": "type",
             "schema": {
               "type": "string",
@@ -677,8 +691,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -697,7 +710,7 @@
     "/api/mapping/jobs/": {
       "get": {
         "operationId": "mapping_jobs_list",
-        "description": "List mapping jobs (most recent first).",
+        "description": "List mapping jobs for a project (most recent first).",
         "parameters": [
           {
             "in": "query",
@@ -705,6 +718,14 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "project_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
           },
           {
             "in": "query",
@@ -719,8 +740,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -754,8 +774,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -813,8 +832,7 @@
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -855,13 +873,13 @@
                 "$ref": "#/components/schemas/RunMappingRequest"
               }
             }
-          }
+          },
+          "required": true
         },
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "202": {
@@ -888,14 +906,21 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "project_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
           }
         ],
         "tags": ["Mapping"],
         "security": [
           {
             "jwtAuth": []
-          },
-          {}
+          }
         ],
         "responses": {
           "200": {
@@ -1820,6 +1845,10 @@
       "RunMappingRequest": {
         "type": "object",
         "properties": {
+          "project_id": {
+            "type": "integer",
+            "minimum": 1
+          },
           "source": {
             "type": "string"
           },
@@ -1838,7 +1867,8 @@
             "type": "integer",
             "minimum": 1
           }
-        }
+        },
+        "required": ["project_id"]
       },
       "RunMappingResponse": {
         "type": "object",
@@ -1859,6 +1889,10 @@
       "SearchRequest": {
         "type": "object",
         "properties": {
+          "project_id": {
+            "type": "integer",
+            "minimum": 1
+          },
           "query": {
             "type": "string",
             "maxLength": 500,
@@ -1897,7 +1931,7 @@
             "default": false
           }
         },
-        "required": ["query"]
+        "required": ["project_id", "query"]
       },
       "SearchResponse": {
         "type": "object",

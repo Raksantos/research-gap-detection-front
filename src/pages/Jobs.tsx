@@ -4,6 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link as RouterLink } from "react-router-dom";
 import { mappingJobsList, mappingRun } from "@/api/generated";
 import type { MappingJob, MappingJobList, RunMappingRequest, RunMappingResponse } from "@/api/generated";
+import { useSelectedProject } from "@/projects/projectContext";
+
+type RunMappingForm = Omit<RunMappingRequest, "project_id">;
 
 type JobStatus = "pending" | "running" | "success" | "failed";
 
@@ -36,14 +39,19 @@ function formatDate(value: string | null): string {
 
 export function JobsPage() {
   const queryClient = useQueryClient();
+  const { selectedProjectId } = useSelectedProject();
   const [statusFilter, setStatusFilter] = useState<JobStatus | "">("");
-  const [runForm, setRunForm] = useState<RunMappingRequest>({});
+  const [runForm, setRunForm] = useState<RunMappingForm>({});
 
   const jobsQuery = useQuery<MappingJobList>({
-    queryKey: ["mapping", "jobs", statusFilter],
+    queryKey: ["mapping", "jobs", selectedProjectId, statusFilter],
+    enabled: selectedProjectId !== null,
     queryFn: async () => {
       const response = await mappingJobsList({
-        query: statusFilter ? { status: statusFilter } : undefined,
+        query: {
+          project_id: selectedProjectId as number,
+          ...(statusFilter ? { status: statusFilter } : {}),
+        },
         throwOnError: true,
       });
       return response.data;
@@ -66,7 +74,10 @@ export function JobsPage() {
 
   function handleRun(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    runMutation.mutate(runForm);
+    if (selectedProjectId === null) {
+      return;
+    }
+    runMutation.mutate({ ...runForm, project_id: selectedProjectId });
   }
 
   const jobs = jobsQuery.data?.jobs ?? [];
@@ -75,8 +86,14 @@ export function JobsPage() {
     <Stack gap={6}>
       <Heading size="lg">Jobs</Heading>
       <Text opacity={0.8}>
-        Run knowledge-mapping jobs over the persisted corpus and track their progress.
+        Run knowledge-mapping jobs over the selected project's corpus and track their progress.
       </Text>
+
+      {selectedProjectId === null ? (
+        <Text color="orange.300">
+          Select a project (top-right) to run and list mapping jobs.
+        </Text>
+      ) : null}
 
       <form onSubmit={handleRun}>
         <Box borderWidth="1px" borderRadius="md" p={4}>
@@ -159,7 +176,10 @@ export function JobsPage() {
               </Box>
             </Box>
 
-            <Button type="submit" disabled={runMutation.isPending}>
+            <Button
+              type="submit"
+              disabled={runMutation.isPending || selectedProjectId === null}
+            >
               {runMutation.isPending ? "Starting..." : "Run mapping job"}
             </Button>
           </Stack>
@@ -204,7 +224,9 @@ export function JobsPage() {
           <Text color="red.300">Failed to load jobs: {jobsQuery.error.message}</Text>
         ) : null}
 
-        {!jobsQuery.isLoading && jobs.length === 0 ? (
+        {selectedProjectId === null ? (
+          <Text>No project selected.</Text>
+        ) : !jobsQuery.isLoading && jobs.length === 0 ? (
           <Text>No jobs yet. Start one above.</Text>
         ) : (
           <Stack gap={3}>

@@ -3,8 +3,11 @@ import { Box, Button, Heading, Spinner, Stack, Text } from "@chakra-ui/react";
 import { useMutation } from "@tanstack/react-query";
 import { ingestionSearch } from "@/api/generated";
 import type { SearchRequest, SearchResponse, SourcesEnum } from "@/api/generated";
+import { useSelectedProject } from "@/projects/projectContext";
 
-const initialPayload: SearchRequest = {
+type SearchForm = Omit<SearchRequest, "project_id">;
+
+const initialPayload: SearchForm = {
   query: "",
   sources: ["openalex", "arxiv"],
   limit: 50,
@@ -24,7 +27,8 @@ function toNumberOrUndefined(value: string): number | undefined {
 }
 
 export function SearchPage() {
-  const [form, setForm] = useState<SearchRequest>(initialPayload);
+  const { selectedProjectId } = useSelectedProject();
+  const [form, setForm] = useState<SearchForm>(initialPayload);
   const [formError, setFormError] = useState<string | null>(null);
 
   const mutation = useMutation<SearchResponse, Error, SearchRequest>({
@@ -54,6 +58,10 @@ export function SearchPage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (selectedProjectId === null) {
+      setFormError("Select a project before running a search.");
+      return;
+    }
     if (!form.query.trim()) {
       setFormError("Query is required.");
       return;
@@ -63,7 +71,7 @@ export function SearchPage() {
       return;
     }
     setFormError(null);
-    mutation.mutate(form);
+    mutation.mutate({ ...form, project_id: selectedProjectId });
   }
 
   function toggleSource(source: SourcesEnum, checked: boolean) {
@@ -79,6 +87,12 @@ export function SearchPage() {
   return (
     <Stack gap={6}>
       <Heading size="lg">Search</Heading>
+
+      {selectedProjectId === null ? (
+        <Text color="orange.300">
+          Select a project (top-right) to search into its corpus.
+        </Text>
+      ) : null}
 
       <form onSubmit={handleSubmit}>
         <Box borderWidth="1px" borderRadius="md" p={4}>
@@ -192,7 +206,10 @@ export function SearchPage() {
               </label>
             </Stack>
 
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button
+              type="submit"
+              disabled={mutation.isPending || selectedProjectId === null}
+            >
               {mutation.isPending ? "Searching..." : "Run search"}
             </Button>
           </Stack>

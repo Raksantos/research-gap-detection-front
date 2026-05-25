@@ -7,6 +7,7 @@ import { SearchPage } from "@/pages/Search";
 import { ingestionSearch } from "@/api/generated";
 import type { SearchResponse } from "@/api/generated";
 import { system } from "@/theme/system";
+import { ProjectProvider } from "@/projects/ProjectProvider";
 
 vi.mock("@/api/generated", async () => {
   const actual = await vi.importActual<typeof import("@/api/generated")>("@/api/generated");
@@ -33,7 +34,9 @@ function renderPage() {
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <ChakraProvider value={system}>
         <QueryClientProvider client={queryClient}>
-          <SearchPage />
+          <ProjectProvider>
+            <SearchPage />
+          </ProjectProvider>
         </QueryClientProvider>
       </ChakraProvider>
     </ThemeProvider>,
@@ -43,6 +46,8 @@ function renderPage() {
 describe("SearchPage", () => {
   beforeEach(() => {
     mockIngestionSearch.mockReset();
+    // A project must be selected for the search form to submit.
+    localStorage.setItem("rgd.selectedProjectId", "1");
   });
 
   it("submits and renders results on success", async () => {

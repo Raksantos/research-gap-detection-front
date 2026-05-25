@@ -128,9 +128,9 @@ export const gapsGapDetail = <ThrowOnError extends boolean = false>(options: Opt
 });
 
 /**
- * List gap-detection jobs (most recent first).
+ * List gap-detection jobs for a project (most recent first).
  */
-export const gapsJobsList = <ThrowOnError extends boolean = false>(options?: Options<GapsJobsListData, ThrowOnError>) => (options?.client ?? client).get<GapsJobsListResponses, unknown, ThrowOnError>({
+export const gapsJobsList = <ThrowOnError extends boolean = false>(options: Options<GapsJobsListData, ThrowOnError>) => (options.client ?? client).get<GapsJobsListResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/gaps/jobs/',
@@ -188,7 +188,7 @@ export const ingestionSearch = <ThrowOnError extends boolean = false>(options: O
 /**
  * List co-occurrence edges between entities for a mapping job. If `job_id` is omitted, returns edges of the latest successful job.
  */
-export const mappingCooccurrences = <ThrowOnError extends boolean = false>(options?: Options<MappingCooccurrencesData, ThrowOnError>) => (options?.client ?? client).get<MappingCooccurrencesResponses, unknown, ThrowOnError>({
+export const mappingCooccurrences = <ThrowOnError extends boolean = false>(options: Options<MappingCooccurrencesData, ThrowOnError>) => (options.client ?? client).get<MappingCooccurrencesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/cooccurrences/',
@@ -198,7 +198,7 @@ export const mappingCooccurrences = <ThrowOnError extends boolean = false>(optio
 /**
  * List extracted entities (methods/datasets/tasks/metrics) ranked by number of documents that mention them.
  */
-export const mappingEntities = <ThrowOnError extends boolean = false>(options?: Options<MappingEntitiesData, ThrowOnError>) => (options?.client ?? client).get<MappingEntitiesResponses, unknown, ThrowOnError>({
+export const mappingEntities = <ThrowOnError extends boolean = false>(options: Options<MappingEntitiesData, ThrowOnError>) => (options.client ?? client).get<MappingEntitiesResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/entities/',
@@ -206,9 +206,9 @@ export const mappingEntities = <ThrowOnError extends boolean = false>(options?: 
 });
 
 /**
- * List mapping jobs (most recent first).
+ * List mapping jobs for a project (most recent first).
  */
-export const mappingJobsList = <ThrowOnError extends boolean = false>(options?: Options<MappingJobsListData, ThrowOnError>) => (options?.client ?? client).get<MappingJobsListResponses, unknown, ThrowOnError>({
+export const mappingJobsList = <ThrowOnError extends boolean = false>(options: Options<MappingJobsListData, ThrowOnError>) => (options.client ?? client).get<MappingJobsListResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/jobs/',
@@ -238,21 +238,21 @@ export const mappingJobSummary = <ThrowOnError extends boolean = false>(options:
 /**
  * Create a new MappingJob and enqueue the mapping pipeline task (embed → cluster → extract → co-occurrences). Returns 202 immediately with the job_id; clients should poll /api/mapping/jobs/{id}/ for progress.
  */
-export const mappingRun = <ThrowOnError extends boolean = false>(options?: Options<MappingRunData, ThrowOnError>) => (options?.client ?? client).post<MappingRunResponses, unknown, ThrowOnError>({
+export const mappingRun = <ThrowOnError extends boolean = false>(options: Options<MappingRunData, ThrowOnError>) => (options.client ?? client).post<MappingRunResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/run/',
     ...options,
     headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
     }
 });
 
 /**
  * List topics (clusters) produced by a mapping job. If `job_id` is omitted, returns topics of the latest successful job.
  */
-export const mappingTopics = <ThrowOnError extends boolean = false>(options?: Options<MappingTopicsData, ThrowOnError>) => (options?.client ?? client).get<MappingTopicsResponses, unknown, ThrowOnError>({
+export const mappingTopics = <ThrowOnError extends boolean = false>(options: Options<MappingTopicsData, ThrowOnError>) => (options.client ?? client).get<MappingTopicsResponses, unknown, ThrowOnError>({
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/mapping/topics/',

@@ -218,6 +218,7 @@ export type RunGapDetectionResponse = {
 };
 
 export type RunMappingRequest = {
+    project_id: number;
     source?: string;
     limit?: number;
     model?: string;
@@ -232,6 +233,7 @@ export type RunMappingResponse = {
 };
 
 export type SearchRequest = {
+    project_id: number;
     query: string;
     sources?: Array<SourcesEnum>;
     limit?: number;
@@ -493,9 +495,10 @@ export type GapsGapDetailResponse = GapsGapDetailResponses[keyof GapsGapDetailRe
 export type GapsJobsListData = {
     body?: never;
     path?: never;
-    query?: {
+    query: {
         limit?: number;
         mapping_job_id?: number;
+        project_id: number;
         status?: 'failed' | 'pending' | 'running' | 'success';
     };
     url: '/api/gaps/jobs/';
@@ -583,10 +586,11 @@ export type IngestionSearchResponse = IngestionSearchResponses[keyof IngestionSe
 export type MappingCooccurrencesData = {
     body?: never;
     path?: never;
-    query?: {
+    query: {
         job_id?: number;
         limit?: number;
         min_weight?: number;
+        project_id: number;
     };
     url: '/api/mapping/cooccurrences/';
 };
@@ -600,8 +604,9 @@ export type MappingCooccurrencesResponse = MappingCooccurrencesResponses[keyof M
 export type MappingEntitiesData = {
     body?: never;
     path?: never;
-    query?: {
+    query: {
         limit?: number;
+        project_id: number;
         type?: 'dataset' | 'method' | 'metric' | 'task';
     };
     url: '/api/mapping/entities/';
@@ -616,8 +621,9 @@ export type MappingEntitiesResponse = MappingEntitiesResponses[keyof MappingEnti
 export type MappingJobsListData = {
     body?: never;
     path?: never;
-    query?: {
+    query: {
         limit?: number;
+        project_id: number;
         status?: 'failed' | 'pending' | 'running' | 'success';
     };
     url: '/api/mapping/jobs/';
@@ -678,7 +684,7 @@ export type MappingJobSummaryResponses = {
 export type MappingJobSummaryResponse = MappingJobSummaryResponses[keyof MappingJobSummaryResponses];
 
 export type MappingRunData = {
-    body?: RunMappingRequest;
+    body: RunMappingRequest;
     path?: never;
     query?: never;
     url: '/api/mapping/run/';
@@ -693,8 +699,9 @@ export type MappingRunResponse = MappingRunResponses[keyof MappingRunResponses];
 export type MappingTopicsData = {
     body?: never;
     path?: never;
-    query?: {
+    query: {
         job_id?: number;
+        project_id: number;
     };
     url: '/api/mapping/topics/';
 };
