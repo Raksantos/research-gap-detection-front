@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthMeData, AuthMeResponses, AuthRegisterData, AuthRegisterResponses, AuthTokenCreateData, AuthTokenCreateResponses, AuthTokenRefreshCreateData, AuthTokenRefreshCreateResponses, AuthTokenVerifyCreateData, AuthTokenVerifyCreateResponses, FeasibilityAssessData, FeasibilityAssessErrors, FeasibilityAssessResponses, FeasibilityDetailData, FeasibilityDetailErrors, FeasibilityDetailResponses, FeasibilityListData, FeasibilityListResponses, GapsGapDetailData, GapsGapDetailErrors, GapsGapDetailResponses, GapsJobDetailData, GapsJobDetailErrors, GapsJobDetailResponses, GapsJobGapsData, GapsJobGapsErrors, GapsJobGapsResponses, GapsJobsListData, GapsJobsListResponses, GapsRunData, GapsRunResponses, IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDeleteData, ProjectsDeleteResponses, ProjectsListData, ProjectsListResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
+import type { AuthMeData, AuthMeResponses, AuthRegisterData, AuthRegisterResponses, AuthTokenCreateData, AuthTokenCreateResponses, AuthTokenRefreshCreateData, AuthTokenRefreshCreateResponses, AuthTokenVerifyCreateData, AuthTokenVerifyCreateResponses, FeasibilityAssessData, FeasibilityAssessErrors, FeasibilityAssessResponses, FeasibilityDetailData, FeasibilityDetailErrors, FeasibilityDetailResponses, FeasibilityListData, FeasibilityListResponses, GapsGapDetailData, GapsGapDetailErrors, GapsGapDetailResponses, GapsJobDetailData, GapsJobDetailErrors, GapsJobDetailResponses, GapsJobGapsData, GapsJobGapsErrors, GapsJobGapsResponses, GapsJobsListData, GapsJobsListResponses, GapsRunData, GapsRunResponses, IngestionJobDetailData, IngestionJobDetailErrors, IngestionJobDetailResponses, IngestionJobsListData, IngestionJobsListResponses, IngestionRunData, IngestionRunResponses, IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDeleteData, ProjectsDeleteResponses, ProjectsListData, ProjectsListResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -164,6 +164,40 @@ export const gapsRun = <ThrowOnError extends boolean = false>(options: Options<G
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/gaps/run/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * List ingestion jobs for a project (most recent first).
+ */
+export const ingestionJobsList = <ThrowOnError extends boolean = false>(options: Options<IngestionJobsListData, ThrowOnError>) => (options.client ?? client).get<IngestionJobsListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/ingest/jobs/',
+    ...options
+});
+
+/**
+ * Retrieve a single ingestion job with full stats and error.
+ */
+export const ingestionJobDetail = <ThrowOnError extends boolean = false>(options: Options<IngestionJobDetailData, ThrowOnError>) => (options.client ?? client).get<IngestionJobDetailResponses, IngestionJobDetailErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/ingest/jobs/{job_id}/',
+    ...options
+});
+
+/**
+ * Create an IngestionJob and enqueue the corpus search asynchronously. Returns 202 with the job_id; clients should poll /api/ingest/jobs/{id}/ for progress. Documents are always persisted into the project's corpus (use /api/ingest/search/ for a synchronous preview).
+ */
+export const ingestionRun = <ThrowOnError extends boolean = false>(options: Options<IngestionRunData, ThrowOnError>) => (options.client ?? client).post<IngestionRunResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/ingest/run/',
     ...options,
     headers: {
         'Content-Type': 'application/json',

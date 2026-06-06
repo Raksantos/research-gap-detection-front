@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Outlet } from "react-router-dom";
 import { App } from "@/App";
 import { HomePage } from "@/pages/Home";
 import { SearchPage } from "@/pages/Search";
@@ -9,6 +9,18 @@ import { LoginPage } from "@/pages/Login";
 import { RegisterPage } from "@/pages/Register";
 import { NotFoundPage } from "@/pages/NotFound";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { RequireProject } from "@/components/projects/RequireProject";
+
+/** Features require both a logged-in user and an active project. */
+function ProtectedLayout() {
+  return (
+    <RequireAuth>
+      <RequireProject>
+        <Outlet />
+      </RequireProject>
+    </RequireAuth>
+  );
+}
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
@@ -18,9 +30,14 @@ export const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "search", element: <SearchPage /> },
-      { path: "jobs", element: <JobsPage /> },
-      { path: "gaps", element: <GapsPage /> },
+      {
+        element: <ProtectedLayout />,
+        children: [
+          { path: "search", element: <SearchPage /> },
+          { path: "jobs", element: <JobsPage /> },
+          { path: "gaps", element: <GapsPage /> },
+        ],
+      },
       {
         path: "projects",
         element: (

@@ -4,8 +4,8 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SearchPage } from "@/pages/Search";
-import { ingestionSearch } from "@/api/generated";
-import type { SearchResponse } from "@/api/generated";
+import { ingestionRun, ingestionJobsList } from "@/api/generated";
+import type { IngestionJob, IngestionJobList, RunIngestionResponse } from "@/api/generated";
 import { system } from "@/theme/system";
 import { ProjectProvider } from "@/projects/ProjectProvider";
 
@@ -13,14 +13,37 @@ vi.mock("@/api/generated", async () => {
   const actual = await vi.importActual<typeof import("@/api/generated")>("@/api/generated");
   return {
     ...actual,
-    ingestionSearch: vi.fn(),
+    ingestionRun: vi.fn(),
+    ingestionJobsList: vi.fn(),
   };
 });
 
-const mockIngestionSearch = ingestionSearch as unknown as ReturnType<typeof vi.fn>;
+const mockIngestionRun = ingestionRun as unknown as ReturnType<typeof vi.fn>;
+const mockIngestionJobsList = ingestionJobsList as unknown as ReturnType<typeof vi.fn>;
 
-function buildResponse(data: SearchResponse) {
+function buildResponse<T>(data: T) {
   return { data, status: 200, statusText: "OK", headers: {}, config: {} };
+}
+
+function makeJob(overrides: Partial<IngestionJob> = {}): IngestionJob {
+  return {
+    id: 3,
+    status: "success",
+    query: "transformers",
+    sources: ["arxiv"],
+    limit: 50,
+    params: {},
+    stats: { persisted: 2 },
+    result_count: 2,
+    error: "",
+    created_at: "2026-05-28T00:00:00Z",
+    finished_at: "2026-05-28T00:01:00Z",
+    ...overrides,
+  };
+}
+
+function emptyList(): IngestionJobList {
+  return { total: 0, jobs: [] };
 }
 
 function renderPage() {
@@ -45,31 +68,19 @@ function renderPage() {
 
 describe("SearchPage", () => {
   beforeEach(() => {
-    mockIngestionSearch.mockReset();
+    mockIngestionRun.mockReset();
+    mockIngestionJobsList.mockReset();
     // A project must be selected for the search form to submit.
     localStorage.setItem("rgd.selectedProjectId", "1");
+    mockIngestionJobsList.mockResolvedValue(buildResponse(emptyList()));
   });
 
-  it("submits and renders results on success", async () => {
-    mockIngestionSearch.mockResolvedValue(
-      buildResponse({
-        documents: [
-          {
-            source: "openalex",
-            external_id: "123",
-            title: "Test document",
-            abstract: "A useful abstract.",
-            authors: [],
-            year: 2024,
-            doi: null,
-            keywords: [],
-            url: null,
-          },
-        ],
-        per_source_counts: { openalex: 1 },
-        filtered_out: 0,
-        duplicates_collapsed: 0,
-        persisted: 1,
+  it("starts an async search and shows the running banner", async () => {
+    mockIngestionRun.mockResolvedValue(
+      buildResponse<RunIngestionResponse>({
+        job_id: 7,
+        status: "pending",
+        task_id: "abc",
       }),
     );
 
@@ -81,48 +92,29 @@ describe("SearchPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Run search" }));
 
     await waitFor(() => {
-      expect(mockIngestionSearch).toHaveBeenCalledTimes(1);
+      expect(mockIngestionRun).toHaveBeenCalledTimes(1);
     });
 
-    expect(await screen.findByText("Test document")).toBeInTheDocument();
-    expect(screen.getByText("Persisted: 1")).toBeInTheDocument();
+    expect(await screen.findByText(/Search #7 started/)).toBeInTheDocument();
   });
 
-  it("renders request error when API fails", async () => {
-    mockIngestionSearch.mockRejectedValue(new Error("backend unavailable"));
+  it("renders an error when starting the search fails", async () => {
+    mockIngestionRun.mockRejectedValue(new Error("backend unavailable"));
     renderPage();
 
     fireEvent.change(screen.getByLabelText("Query"), { target: { value: "query" } });
     fireEvent.click(screen.getByRole("button", { name: "Run search" }));
 
-    expect(await screen.findByText(/Request failed:/)).toBeInTheDocument();
+    expect(await screen.findByText(/Failed to start search:/)).toBeInTheDocument();
   });
 
-  it("shows loading state while request is running", async () => {
-    mockIngestionSearch.mockImplementation(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve(
-                buildResponse({
-                  documents: [],
-                  per_source_counts: {},
-                  filtered_out: 0,
-                  duplicates_collapsed: 0,
-                  persisted: 0,
-                }),
-              ),
-            30,
-          ),
-        ),
+  it("lists existing searches from the jobs query", async () => {
+    mockIngestionJobsList.mockResolvedValue(
+      buildResponse<IngestionJobList>({ total: 1, jobs: [makeJob({ id: 3 })] }),
     );
 
     renderPage();
-    fireEvent.change(screen.getByLabelText("Query"), { target: { value: "query" } });
-    fireEvent.click(screen.getByRole("button", { name: "Run search" }));
 
-    expect(screen.getByText("Searching...")).toBeInTheDocument();
-    expect(screen.getByText("Fetching documents...")).toBeInTheDocument();
+    expect(await screen.findByText("Search #3")).toBeInTheDocument();
   });
 });

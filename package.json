@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "openapi:gen": "openapi-ts -i ./openapi/schema.json -o ./src/api/generated -c @hey-api/client-axios",
-    "openapi:gen:backend": "openapi-ts -i http://127.0.0.1:8000/api/schema/?format=openapi-json -o ./src/api/generated -c @hey-api/client-axios",
+    "openapi:gen:backend": "openapi-ts -i http://127.0.0.1:8000/api/schema/?format=json -o ./src/api/generated -c @hey-api/client-axios",
     "prepare": "husky"
   },
   "lint-staged": {

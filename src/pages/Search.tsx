@@ -1,22 +1,39 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Box, Button, Heading, Spinner, Stack, Text } from "@chakra-ui/react";
-import { useMutation } from "@tanstack/react-query";
-import { ingestionSearch } from "@/api/generated";
-import type { SearchRequest, SearchResponse, SourcesEnum } from "@/api/generated";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ingestionRun } from "@/api/generated";
+import type {
+  IngestionJob,
+  RunIngestionResponse,
+  SearchRequest,
+  SourcesEnum,
+} from "@/api/generated";
 import { useSelectedProject } from "@/projects/projectContext";
+import {
+  INGESTION_JOBS_KEY,
+  useIngestionJobs,
+} from "@/ingestion/useIngestionJobs";
 
-type SearchForm = Omit<SearchRequest, "project_id">;
+type SearchForm = Omit<SearchRequest, "project_id" | "persist">;
 
 const initialPayload: SearchForm = {
   query: "",
   sources: ["openalex", "arxiv"],
   limit: 50,
   dedupe: true,
-  persist: true,
   year_min: 2020,
   year_max: new Date().getFullYear(),
   require_abstract: false,
 };
+
+const statusColors: Record<string, string> = {
+  pending: "yellow.300",
+  running: "blue.300",
+  success: "green.300",
+  failed: "red.300",
+};
+
+const inputStyle = { width: "100%", padding: "8px", marginTop: "4px" } as const;
 
 function toNumberOrUndefined(value: string): number | undefined {
   if (!value.trim()) {
@@ -26,35 +43,32 @@ function toNumberOrUndefined(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+function formatDate(value: string | null): string {
+  if (!value) {
+    return "—";
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString();
+}
+
 export function SearchPage() {
+  const queryClient = useQueryClient();
   const { selectedProjectId } = useSelectedProject();
   const [form, setForm] = useState<SearchForm>(initialPayload);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const mutation = useMutation<SearchResponse, Error, SearchRequest>({
+  const jobsQuery = useIngestionJobs(selectedProjectId);
+  const jobs = jobsQuery.data?.jobs ?? [];
+
+  const mutation = useMutation<RunIngestionResponse, Error, SearchRequest>({
     mutationFn: async (body) => {
-      const response = await ingestionSearch({ body, throwOnError: true });
+      const response = await ingestionRun({ body, throwOnError: true });
       return response.data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [INGESTION_JOBS_KEY] });
+    },
   });
-
-  const data = mutation.data;
-  const hasResults = Boolean(data && data.documents.length);
-
-  const stats = useMemo(() => {
-    if (!data) {
-      return null;
-    }
-    return [
-      ["Filtered out", data.filtered_out],
-      ["Duplicates collapsed", data.duplicates_collapsed],
-      ["Persisted", data.persisted],
-      ...Object.entries(data.per_source_counts).map(([source, count]) => [
-        `Count (${source})`,
-        count,
-      ]),
-    ] as [string, number][];
-  }, [data]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -62,7 +76,7 @@ export function SearchPage() {
       setFormError("Select a project before running a search.");
       return;
     }
-    if (!form.query.trim()) {
+    if (!form.query?.trim()) {
       setFormError("Query is required.");
       return;
     }
@@ -71,7 +85,7 @@ export function SearchPage() {
       return;
     }
     setFormError(null);
-    mutation.mutate({ ...form, project_id: selectedProjectId });
+    mutation.mutate({ ...form, persist: true, project_id: selectedProjectId });
   }
 
   function toggleSource(source: SourcesEnum, checked: boolean) {
@@ -87,12 +101,10 @@ export function SearchPage() {
   return (
     <Stack gap={6}>
       <Heading size="lg">Search</Heading>
-
-      {selectedProjectId === null ? (
-        <Text color="orange.300">
-          Select a project (top-right) to search into its corpus.
-        </Text>
-      ) : null}
+      <Text opacity={0.8}>
+        Searches run in the background. You can leave this page — you'll get a
+        notification when each one finishes.
+      </Text>
 
       <form onSubmit={handleSubmit}>
         <Box borderWidth="1px" borderRadius="md" p={4}>
@@ -103,9 +115,11 @@ export function SearchPage() {
                 id="query"
                 name="query"
                 value={form.query}
-                onChange={(event) => setForm((prev) => ({ ...prev, query: event.target.value }))}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, query: event.target.value }))
+                }
                 placeholder="E.g. graph neural network drug discovery"
-                style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                style={inputStyle}
               />
             </Box>
 
@@ -145,7 +159,7 @@ export function SearchPage() {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, limit: Number(event.target.value || "1") }))
                   }
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                  style={inputStyle}
                 />
               </Box>
               <Box>
@@ -157,7 +171,7 @@ export function SearchPage() {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, year_min: toNumberOrUndefined(event.target.value) }))
                   }
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                  style={inputStyle}
                 />
               </Box>
               <Box>
@@ -169,7 +183,7 @@ export function SearchPage() {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, year_max: toNumberOrUndefined(event.target.value) }))
                   }
-                  style={{ width: "100%", padding: "8px", marginTop: "4px" }}
+                  style={inputStyle}
                 />
               </Box>
             </Box>
@@ -184,15 +198,6 @@ export function SearchPage() {
                 />{" "}
                 Dedupe
               </label>
-              <label htmlFor="persist">
-                <input
-                  id="persist"
-                  type="checkbox"
-                  checked={form.persist ?? true}
-                  onChange={(event) => setForm((prev) => ({ ...prev, persist: event.target.checked }))}
-                />{" "}
-                Persist
-              </label>
               <label htmlFor="require-abstract">
                 <input
                   id="require-abstract"
@@ -206,11 +211,8 @@ export function SearchPage() {
               </label>
             </Stack>
 
-            <Button
-              type="submit"
-              disabled={mutation.isPending || selectedProjectId === null}
-            >
-              {mutation.isPending ? "Searching..." : "Run search"}
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Starting..." : "Run search"}
             </Button>
           </Stack>
         </Box>
@@ -218,50 +220,70 @@ export function SearchPage() {
 
       {formError ? <Text color="red.300">{formError}</Text> : null}
       {mutation.isError ? (
-        <Text color="red.300">Request failed: {mutation.error.message}</Text>
+        <Text color="red.300">Failed to start search: {mutation.error.message}</Text>
       ) : null}
-
-      {mutation.isPending ? (
-        <Box>
-          <Spinner size="sm" /> <Text as="span">Fetching documents...</Text>
-        </Box>
-      ) : null}
-
-      {stats ? (
-        <Box borderWidth="1px" borderRadius="md" p={4}>
-          <Heading size="sm" mb={3}>
-            Search stats
-          </Heading>
-          <Stack gap={1}>
-            {stats.map(([label, value]) => (
-              <Text key={label}>
-                {label}: {value}
-              </Text>
-            ))}
-          </Stack>
-        </Box>
+      {mutation.isSuccess ? (
+        <Text color="green.300">
+          Search #{mutation.data.job_id} started — running. You'll be notified
+          when it finishes.
+        </Text>
       ) : null}
 
       <Box borderWidth="1px" borderRadius="md" p={4}>
         <Heading size="sm" mb={3}>
-          Documents
+          Searches ({jobsQuery.data?.total ?? 0})
         </Heading>
-        {!hasResults ? (
-          <Text>No documents yet. Submit a query to start.</Text>
+        {jobsQuery.isLoading ? (
+          <Box>
+            <Spinner size="sm" /> <Text as="span">Loading searches...</Text>
+          </Box>
+        ) : null}
+        {jobsQuery.isError ? (
+          <Text color="red.300">Failed to load searches: {jobsQuery.error.message}</Text>
+        ) : null}
+        {!jobsQuery.isLoading && jobs.length === 0 ? (
+          <Text>No searches yet. Run one above.</Text>
         ) : (
           <Stack gap={3}>
-            {data?.documents.map((doc) => (
-              <Box key={`${doc.source}:${doc.external_id}`} borderWidth="1px" borderRadius="md" p={3}>
-                <Text fontWeight="bold">{doc.title}</Text>
-                <Text fontSize="sm" opacity={0.8}>
-                  {doc.source} - {doc.year ?? "n/a"}
-                </Text>
-                {doc.abstract ? <Text mt={2}>{doc.abstract}</Text> : null}
-              </Box>
+            {jobs.map((job) => (
+              <JobCard key={job.id} job={job} />
             ))}
           </Stack>
         )}
       </Box>
     </Stack>
+  );
+}
+
+function JobCard({ job }: Readonly<{ job: IngestionJob }>) {
+  const active = job.status === "pending" || job.status === "running";
+  return (
+    <Box borderWidth="1px" borderRadius="md" p={3}>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Text fontWeight="bold">Search #{job.id}</Text>
+        <Box display="flex" alignItems="center" gap={2}>
+          {active ? <Spinner size="xs" /> : null}
+          <Text color={statusColors[job.status] ?? "gray.400"} fontWeight="bold">
+            {job.status}
+          </Text>
+        </Box>
+      </Box>
+      <Text fontSize="sm" opacity={0.8}>
+        {job.query} · {(job.sources ?? []).join(", ") || "all sources"}
+      </Text>
+      <Text fontSize="sm" opacity={0.8}>
+        Created {formatDate(job.created_at)} · Finished {formatDate(job.finished_at)}
+      </Text>
+      {job.error ? (
+        <Text color="red.300" mt={1} fontSize="sm">
+          {job.error}
+        </Text>
+      ) : null}
+      {job.stats && Object.keys(job.stats).length > 0 ? (
+        <Box as="pre" mt={2} fontSize="xs" overflowX="auto" borderWidth="1px" borderRadius="md" p={2}>
+          {JSON.stringify(job.stats, null, 2)}
+        </Box>
+      ) : null}
+    </Box>
   );
 }

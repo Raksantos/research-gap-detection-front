@@ -5,11 +5,15 @@ import { useAuth } from "@/auth/authContext";
 import { useSelectedProject } from "@/projects/projectContext";
 import { useProjects } from "@/projects/useProjects";
 
-const baseNavItems = [
-  { to: "/", label: "Home" },
+const publicNavItems = [{ to: "/", label: "Home" }];
+
+// Feature pages require login + an active project, so only surface them to
+// authenticated users (they would otherwise just bounce to /login).
+const featureNavItems = [
   { to: "/search", label: "Search" },
   { to: "/jobs", label: "Jobs" },
   { to: "/gaps", label: "Gaps" },
+  { to: "/projects", label: "Projects" },
 ];
 
 export function Navbar() {
@@ -19,8 +23,8 @@ export function Navbar() {
   const navigate = useNavigate();
 
   const navItems = isAuthenticated
-    ? [...baseNavItems, { to: "/projects", label: "Projects" }]
-    : baseNavItems;
+    ? [...publicNavItems, ...featureNavItems]
+    : publicNavItems;
   const activeProject =
     projects?.find((p) => p.id === selectedProjectId) ?? null;
 
