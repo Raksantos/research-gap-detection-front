@@ -7,6 +7,7 @@ import { MapPage } from "@/pages/Map";
 import { GapsPage } from "@/pages/Gaps";
 import { FeasibilityPage } from "@/pages/Feasibility";
 import { ReportPage } from "@/pages/Report";
+import { AgentsPage } from "@/pages/Agents";
 import { ProjectsPage } from "@/pages/Projects";
 import { LoginPage } from "@/pages/Login";
 import { RegisterPage } from "@/pages/Register";
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
           { path: "gaps", element: <GapsPage /> },
           { path: "feasibility", element: <FeasibilityPage /> },
           { path: "report", element: <ReportPage /> },
+          { path: "agents", element: <AgentsPage /> },
         ],
       },
       {

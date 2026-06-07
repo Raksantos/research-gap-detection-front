@@ -15,6 +15,7 @@ const featureNavItems = [
   { to: "/map", label: "Map" },
   { to: "/gaps", label: "Gaps" },
   { to: "/feasibility", label: "Feasibility" },
+  { to: "/agents", label: "Agents" },
   { to: "/projects", label: "Projects" },
 ];
 

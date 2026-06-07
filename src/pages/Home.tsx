@@ -12,6 +12,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import {
   ArrowRight,
+  Bot,
   ChevronRight,
   type LucideIcon,
   Network,
@@ -63,6 +64,13 @@ const features: Array<{
     title: "Feasibility",
     desc: "Score each detected gap by how tractable it is — matched datasets, benchmarks and frameworks weighed against cost and complexity.",
     cta: "Assess feasibility",
+  },
+  {
+    to: "/agents",
+    icon: Bot,
+    title: "Agents",
+    desc: "Drive the multi-agent orchestration graphs end-to-end, pausing for human review at key decisions before resuming.",
+    cta: "Run the agents",
   },
 ];
 
