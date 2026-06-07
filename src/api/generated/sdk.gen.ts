@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthMeData, AuthMeResponses, AuthRegisterData, AuthRegisterResponses, AuthTokenCreateData, AuthTokenCreateResponses, AuthTokenRefreshCreateData, AuthTokenRefreshCreateResponses, AuthTokenVerifyCreateData, AuthTokenVerifyCreateResponses, FeasibilityAssessData, FeasibilityAssessErrors, FeasibilityAssessResponses, FeasibilityDetailData, FeasibilityDetailErrors, FeasibilityDetailResponses, FeasibilityListData, FeasibilityListResponses, GapsGapDetailData, GapsGapDetailErrors, GapsGapDetailResponses, GapsJobDetailData, GapsJobDetailErrors, GapsJobDetailResponses, GapsJobGapsData, GapsJobGapsErrors, GapsJobGapsResponses, GapsJobsListData, GapsJobsListResponses, GapsRunData, GapsRunResponses, IngestionJobDetailData, IngestionJobDetailErrors, IngestionJobDetailResponses, IngestionJobsListData, IngestionJobsListResponses, IngestionRunData, IngestionRunResponses, IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDeleteData, ProjectsDeleteResponses, ProjectsListData, ProjectsListResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
+import type { AgentsRunCreateData, AgentsRunCreateErrors, AgentsRunCreateResponses, AgentsRunDetailData, AgentsRunDetailErrors, AgentsRunDetailResponses, AgentsRunListData, AgentsRunListResponses, AgentsRunResumeData, AgentsRunResumeErrors, AgentsRunResumeResponses, AuthMeData, AuthMeResponses, AuthRegisterData, AuthRegisterResponses, AuthTokenCreateData, AuthTokenCreateResponses, AuthTokenRefreshCreateData, AuthTokenRefreshCreateResponses, AuthTokenVerifyCreateData, AuthTokenVerifyCreateResponses, FeasibilityAssessData, FeasibilityAssessErrors, FeasibilityAssessResponses, FeasibilityDetailData, FeasibilityDetailErrors, FeasibilityDetailResponses, FeasibilityListData, FeasibilityListResponses, GapsGapDetailData, GapsGapDetailErrors, GapsGapDetailResponses, GapsJobDetailData, GapsJobDetailErrors, GapsJobDetailResponses, GapsJobGapsData, GapsJobGapsErrors, GapsJobGapsResponses, GapsJobReportData, GapsJobReportErrors, GapsJobReportResponses, GapsJobsListData, GapsJobsListResponses, GapsRunData, GapsRunResponses, IngestionJobDetailData, IngestionJobDetailErrors, IngestionJobDetailResponses, IngestionJobsListData, IngestionJobsListResponses, IngestionRunData, IngestionRunResponses, IngestionSearchData, IngestionSearchResponses, MappingCooccurrencesData, MappingCooccurrencesResponses, MappingEntitiesData, MappingEntitiesResponses, MappingJobDetailData, MappingJobDetailErrors, MappingJobDetailResponses, MappingJobsListData, MappingJobsListResponses, MappingJobSummaryData, MappingJobSummaryErrors, MappingJobSummaryResponses, MappingRunData, MappingRunResponses, MappingTopicsData, MappingTopicsResponses, ProjectsCreateData, ProjectsCreateResponses, ProjectsDeleteData, ProjectsDeleteResponses, ProjectsListData, ProjectsListResponses, ProjectsRetrieveData, ProjectsRetrieveResponses, ProjectsUpdateData, ProjectsUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -17,6 +17,42 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+export const agentsRunList = <ThrowOnError extends boolean = false>(options?: Options<AgentsRunListData, ThrowOnError>) => (options?.client ?? client).get<AgentsRunListResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/agents/runs/',
+    ...options
+});
+
+export const agentsRunCreate = <ThrowOnError extends boolean = false>(options: Options<AgentsRunCreateData, ThrowOnError>) => (options.client ?? client).post<AgentsRunCreateResponses, AgentsRunCreateErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/agents/runs/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+export const agentsRunDetail = <ThrowOnError extends boolean = false>(options: Options<AgentsRunDetailData, ThrowOnError>) => (options.client ?? client).get<AgentsRunDetailResponses, AgentsRunDetailErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/agents/runs/{run_id}/',
+    ...options
+});
+
+export const agentsRunResume = <ThrowOnError extends boolean = false>(options: Options<AgentsRunResumeData, ThrowOnError>) => (options.client ?? client).post<AgentsRunResumeResponses, AgentsRunResumeErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/agents/runs/{run_id}/resume/',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Return the currently authenticated user.
@@ -154,6 +190,16 @@ export const gapsJobGaps = <ThrowOnError extends boolean = false>(options: Optio
     responseType: 'json',
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/gaps/jobs/{job_id}/gaps/',
+    ...options
+});
+
+/**
+ * Auditable, evidence-grounded report for a job: candidate opportunities ranked by priority, each joined to its feasibility assessment, confidence label, and the corpus evidence behind it (the paper's final 'Explanation' pipeline stage).
+ */
+export const gapsJobReport = <ThrowOnError extends boolean = false>(options: Options<GapsJobReportData, ThrowOnError>) => (options.client ?? client).get<GapsJobReportResponses, GapsJobReportErrors, ThrowOnError>({
+    responseType: 'json',
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/gaps/jobs/{job_id}/report/',
     ...options
 });
 

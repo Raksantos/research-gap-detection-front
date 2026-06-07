@@ -6,6 +6,173 @@
     "description": "API documentation for the Research Gap Detection project."
   },
   "paths": {
+    "/api/agents/runs/": {
+      "get": {
+        "operationId": "agents_run_list",
+        "tags": ["Agents"],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentRun"
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "agents_run_create",
+        "tags": ["Agents"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRunCreate"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRunCreate"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRunCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRunCreated"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/agents/runs/{run_id}/": {
+      "get": {
+        "operationId": "agents_run_detail",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": ["Agents"],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRun"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/agents/runs/{run_id}/resume/": {
+      "post": {
+        "operationId": "agents_run_resume",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": ["Agents"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRunResume"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRunResume"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRunResume"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRunCreated"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "description": "No response body"
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
     "/api/auth/me/": {
       "get": {
         "operationId": "auth_me",
@@ -515,6 +682,50 @@
         }
       }
     },
+    "/api/gaps/jobs/{job_id}/report/": {
+      "get": {
+        "operationId": "gaps_job_report",
+        "description": "Auditable, evidence-grounded report for a job: candidate opportunities ranked by priority, each joined to its feasibility assessment, confidence label, and the corpus evidence behind it (the paper's final 'Explanation' pipeline stage).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "top_n",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": ["Gaps"],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapReport"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
     "/api/gaps/run/": {
       "post": {
         "operationId": "gaps_run",
@@ -551,6 +762,136 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RunGapDetectionResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/ingest/jobs/": {
+      "get": {
+        "operationId": "ingestion_jobs_list",
+        "description": "List ingestion jobs for a project (most recent first).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "project_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": ["failed", "pending", "running", "success"]
+            }
+          }
+        ],
+        "tags": ["Ingestion"],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionJobList"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/ingest/jobs/{job_id}/": {
+      "get": {
+        "operationId": "ingestion_job_detail",
+        "description": "Retrieve a single ingestion job with full stats and error.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "tags": ["Ingestion"],
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionJob"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/api/ingest/run/": {
+      "post": {
+        "operationId": "ingestion_run",
+        "description": "Create an IngestionJob and enqueue the corpus search asynchronously. Returns 202 with the job_id; clients should poll /api/ingest/jobs/{id}/ for progress. Documents are always persisted into the project's corpus (use /api/ingest/search/ for a synchronous preview).",
+        "tags": ["Ingestion"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "jwtAuth": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunIngestionResponse"
                 }
               }
             },
@@ -1118,6 +1459,108 @@
   },
   "components": {
     "schemas": {
+      "AgentRun": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "graph": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "current_node": {
+            "type": "string"
+          },
+          "config": {},
+          "stats": {},
+          "error": {
+            "type": "string"
+          },
+          "related_job_id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "pending_review": {
+            "nullable": true
+          },
+          "metrics": {},
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "config",
+          "created_at",
+          "current_node",
+          "error",
+          "finished_at",
+          "graph",
+          "id",
+          "metrics",
+          "pending_review",
+          "related_job_id",
+          "stats",
+          "status",
+          "updated_at"
+        ]
+      },
+      "AgentRunCreate": {
+        "type": "object",
+        "properties": {
+          "graph": {
+            "$ref": "#/components/schemas/GraphEnum"
+          },
+          "project_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "config": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        },
+        "required": ["graph", "project_id"]
+      },
+      "AgentRunCreated": {
+        "type": "object",
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": ["run_id", "status"]
+      },
+      "AgentRunResume": {
+        "type": "object",
+        "properties": {
+          "node": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        },
+        "required": ["decision", "node"]
+      },
       "CoOccurrenceEdge": {
         "type": "object",
         "properties": {
@@ -1165,6 +1608,18 @@
           }
         },
         "required": ["edges", "job_id", "total"]
+      },
+      "Confidence": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": ["level", "reason"]
       },
       "Document": {
         "type": "object",
@@ -1350,10 +1805,17 @@
             "type": "number",
             "format": "double"
           },
+          "maturity_score": {
+            "type": "number",
+            "format": "double"
+          },
           "cost_tier": {
             "type": "string"
           },
           "complexity_tier": {
+            "type": "string"
+          },
+          "maturity_tier": {
             "type": "string"
           },
           "matched_datasets": {},
@@ -1389,8 +1851,74 @@
           "matched_benchmarks",
           "matched_datasets",
           "matched_frameworks",
+          "maturity_score",
+          "maturity_tier",
           "overall_score",
           "updated_at"
+        ]
+      },
+      "FeasibilityReport": {
+        "type": "object",
+        "properties": {
+          "overall_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "dataset_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "benchmark_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "framework_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "cost_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "complexity_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "maturity_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "cost_tier": {
+            "type": "string"
+          },
+          "complexity_tier": {
+            "type": "string"
+          },
+          "maturity_tier": {
+            "type": "string"
+          },
+          "matched_datasets": {},
+          "matched_benchmarks": {},
+          "matched_frameworks": {},
+          "justification": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "benchmark_score",
+          "complexity_score",
+          "complexity_tier",
+          "cost_score",
+          "cost_tier",
+          "dataset_score",
+          "framework_score",
+          "justification",
+          "matched_benchmarks",
+          "matched_datasets",
+          "matched_frameworks",
+          "maturity_score",
+          "maturity_tier",
+          "overall_score"
         ]
       },
       "GapDetail": {
@@ -1597,6 +2125,32 @@
           "type"
         ]
       },
+      "GapReport": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "integer"
+          },
+          "generated_at": {
+            "type": "string"
+          },
+          "confidence_summary": {},
+          "metrics": {},
+          "opportunities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Opportunity"
+            }
+          }
+        },
+        "required": [
+          "confidence_summary",
+          "generated_at",
+          "job_id",
+          "metrics",
+          "opportunities"
+        ]
+      },
       "GapsResponse": {
         "type": "object",
         "properties": {
@@ -1614,6 +2168,97 @@
           }
         },
         "required": ["gaps", "job_id", "total"]
+      },
+      "GraphEnum": {
+        "enum": ["gap_detection", "feasibility", "end_to_end"],
+        "type": "string",
+        "description": "* `gap_detection` - Gap Detection\n* `feasibility` - Feasibility\n* `end_to_end` - End To End"
+      },
+      "InferredOpportunity": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "required": ["rationale", "summary"]
+      },
+      "IngestionJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "stats": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "result_count": {
+            "type": "integer"
+          },
+          "error": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "created_at",
+          "error",
+          "finished_at",
+          "id",
+          "limit",
+          "params",
+          "query",
+          "result_count",
+          "sources",
+          "stats",
+          "status"
+        ]
+      },
+      "IngestionJobList": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IngestionJob"
+            }
+          }
+        },
+        "required": ["jobs", "total"]
       },
       "MappingJob": {
         "type": "object",
@@ -1723,6 +2368,77 @@
           "topics"
         ]
       },
+      "Opportunity": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "nullable": true
+          },
+          "gap_id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "entity_a": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              }
+            ],
+            "nullable": true
+          },
+          "entity_b": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityRef"
+              }
+            ],
+            "nullable": true
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "inferred": {
+            "$ref": "#/components/schemas/InferredOpportunity"
+          },
+          "rarity_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "support_count": {
+            "type": "integer"
+          },
+          "feasibility": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FeasibilityReport"
+              }
+            ],
+            "nullable": true
+          },
+          "extracted_facts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GapEvidence"
+            }
+          }
+        },
+        "required": [
+          "confidence",
+          "entity_a",
+          "entity_b",
+          "extracted_facts",
+          "feasibility",
+          "gap_id",
+          "inferred",
+          "rank",
+          "rarity_score",
+          "support_count",
+          "type"
+        ]
+      },
       "PatchedProject": {
         "type": "object",
         "properties": {
@@ -1827,6 +2543,22 @@
         "required": ["mapping_job_id"]
       },
       "RunGapDetectionResponse": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "task_id": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": ["job_id", "status"]
+      },
+      "RunIngestionResponse": {
         "type": "object",
         "properties": {
           "job_id": {
@@ -1967,9 +2699,9 @@
         ]
       },
       "SourcesEnum": {
-        "enum": ["openalex", "arxiv"],
+        "enum": ["openalex", "arxiv", "semantic_scholar", "acl_anthology"],
         "type": "string",
-        "description": "* `openalex` - openalex\n* `arxiv` - arxiv"
+        "description": "* `openalex` - openalex\n* `arxiv` - arxiv\n* `semantic_scholar` - semantic_scholar\n* `acl_anthology` - acl_anthology"
       },
       "SummaryCoOccurrence": {
         "type": "object",

@@ -6,6 +6,7 @@ import { JobsPage } from "@/pages/Jobs";
 import { MapPage } from "@/pages/Map";
 import { GapsPage } from "@/pages/Gaps";
 import { FeasibilityPage } from "@/pages/Feasibility";
+import { ReportPage } from "@/pages/Report";
 import { ProjectsPage } from "@/pages/Projects";
 import { LoginPage } from "@/pages/Login";
 import { RegisterPage } from "@/pages/Register";
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
           { path: "map", element: <MapPage /> },
           { path: "gaps", element: <GapsPage /> },
           { path: "feasibility", element: <FeasibilityPage /> },
+          { path: "report", element: <ReportPage /> },
         ],
       },
       {

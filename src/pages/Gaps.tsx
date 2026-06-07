@@ -339,6 +339,9 @@ function JobCard({ job }: Readonly<{ job: GapDetectionJob }>) {
           <Link asChild color="blue.300" fontSize="sm">
             <RouterLink to={`/feasibility?gap_detection_job_id=${job.id}`}>Assess feasibility →</RouterLink>
           </Link>
+          <Link asChild color="blue.300" fontSize="sm">
+            <RouterLink to={`/report?job_id=${job.id}`}>View report →</RouterLink>
+          </Link>
         </Box>
       ) : null}
     </Box>
