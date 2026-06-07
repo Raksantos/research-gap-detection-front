@@ -3,6 +3,7 @@ import { App } from "@/App";
 import { HomePage } from "@/pages/Home";
 import { SearchPage } from "@/pages/Search";
 import { JobsPage } from "@/pages/Jobs";
+import { MapPage } from "@/pages/Map";
 import { GapsPage } from "@/pages/Gaps";
 import { ProjectsPage } from "@/pages/Projects";
 import { LoginPage } from "@/pages/Login";
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "search", element: <SearchPage /> },
           { path: "jobs", element: <JobsPage /> },
+          { path: "map", element: <MapPage /> },
           { path: "gaps", element: <GapsPage /> },
         ],
       },

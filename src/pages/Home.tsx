@@ -44,11 +44,18 @@ const features: Array<{
     cta: "Manage jobs",
   },
   {
-    to: "/gaps",
+    to: "/map",
     icon: Network,
-    title: "Knowledge map & gaps",
+    title: "Knowledge map",
     desc: "Explore topics, key entities and their co-occurrences to see where the literature is dense — and where it isn't.",
-    cta: "Explore gaps",
+    cta: "Explore the map",
+  },
+  {
+    to: "/gaps",
+    icon: Target,
+    title: "Gap detection",
+    desc: "Run gap detection over a knowledge map to surface under-explored topics and rare combinations, each backed by evidence.",
+    cta: "Detect gaps",
   },
 ];
 

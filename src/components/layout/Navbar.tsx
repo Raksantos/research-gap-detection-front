@@ -12,6 +12,7 @@ const publicNavItems = [{ to: "/", label: "Home" }];
 const featureNavItems = [
   { to: "/search", label: "Search" },
   { to: "/jobs", label: "Jobs" },
+  { to: "/map", label: "Map" },
   { to: "/gaps", label: "Gaps" },
   { to: "/projects", label: "Projects" },
 ];

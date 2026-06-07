@@ -263,7 +263,7 @@ function JobCard({ job }: Readonly<{ job: MappingJob }>) {
         </Box>
       ) : null}
       <Link asChild mt={2} color="blue.300" fontSize="sm">
-        <RouterLink to={`/gaps?job_id=${job.id}`}>View summary →</RouterLink>
+        <RouterLink to={`/map?job_id=${job.id}`}>View map →</RouterLink>
       </Link>
     </Box>
   );
