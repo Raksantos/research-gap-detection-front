@@ -57,6 +57,13 @@ const features: Array<{
     desc: "Run gap detection over a knowledge map to surface under-explored topics and rare combinations, each backed by evidence.",
     cta: "Detect gaps",
   },
+  {
+    to: "/feasibility",
+    icon: Sparkles,
+    title: "Feasibility",
+    desc: "Score each detected gap by how tractable it is — matched datasets, benchmarks and frameworks weighed against cost and complexity.",
+    cta: "Assess feasibility",
+  },
 ];
 
 const steps: Array<{ icon: LucideIcon; title: string }> = [

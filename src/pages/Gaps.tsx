@@ -332,9 +332,14 @@ function JobCard({ job }: Readonly<{ job: GapDetectionJob }>) {
         </Text>
       ) : null}
       {job.status === "success" ? (
-        <Link asChild mt={2} color="blue.300" fontSize="sm">
-          <RouterLink to={`/gaps?job_id=${job.id}`}>View gaps →</RouterLink>
-        </Link>
+        <Box display="flex" gap={4} mt={2}>
+          <Link asChild color="blue.300" fontSize="sm">
+            <RouterLink to={`/gaps?job_id=${job.id}`}>View gaps →</RouterLink>
+          </Link>
+          <Link asChild color="blue.300" fontSize="sm">
+            <RouterLink to={`/feasibility?gap_detection_job_id=${job.id}`}>Assess feasibility →</RouterLink>
+          </Link>
+        </Box>
       ) : null}
     </Box>
   );
